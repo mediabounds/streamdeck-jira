@@ -1,0 +1,55 @@
+<link rel="stylesheet" type="text/css" href="css/sdpi.css" />
+<link rel="stylesheet" type="text/css" href="css/custom.css" />
+
+<div class="sdpi-item">
+  <div class="sdpi-item-label">Domain</div>
+  <input class="sdpi-item-value" type="text" id="domain" placeholder="your-domain.atlassian.net" value="">
+</div>
+
+<div class="sdpi-item">
+  <div class="sdpi-item-label">Email</div>
+  <input class="sdpi-item-value" type="email" id="email" value="">
+</div>
+
+<div class="sdpi-item">
+  <div class="sdpi-item-label">API Token</div>
+  <input class="sdpi-item-value" type="password" id="token" value="">
+</div>
+
+<div class="sdpi-item">
+  <div class="sdpi-item-label">JQL</div>
+  <textarea class="sdpi-item-value" id="jql"></textarea>
+</div>
+
+<div type="group" class="sdpi-item">
+  <div class="sdpi-heading">Button</div>
+  <div class="sdpi-item" type="select">
+    <div class="sdpi-item-label">Action</div>
+    <select class="sdpi-item-value" id="key-action">
+      <option value="ViewFilter" selected>View JQL filter result</option>
+      <option value="ViewIssues">Open issues</option>
+      <option value="Refresh">Check for update</option>
+    </select>
+    <input class="sdpi-item-value" type="number" placeholder="5" min="0" step="1" max="25" id="key-action-limit">
+  </div>
+</div>
+
+<div type="group" class="sdpi-item">
+  <div class="sdpi-heading">Icon</div>
+  <div class="sdpi-item">
+    <div class="sdpi-item-label">Badge Position</div>
+    <select class="sdpi-item-value" id="badge-position">
+      <option value="topright" selected>Top Right</option>
+      <option value="bottomright">Bottom Right</option>
+      <option value="topleft">Top Left</option>
+      <option value="bottomleft">Bottom Left</option>
+    </select>
+  </div>
+
+  <div class="sdpi-item">
+    <div class="sdpi-item-label">Badge Color</div>
+    <input class="sdpi-item-value" type="color" id="badge-color">
+  </div>
+</div>
+
+<script src="inspector.js"></script>

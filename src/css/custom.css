@@ -1,0 +1,17 @@
+[hidden] {
+  display: none;
+}
+
+select {
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
+input[type="color"] {
+  margin-left: 3px;
+  padding: 0 !important;
+}
+
+.sdpi-item-value + .sdpi-item-value {
+  min-width: auto;
+}
