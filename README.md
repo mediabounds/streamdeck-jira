@@ -1,4 +1,5 @@
 # Stream Deck Jira Plugin
+![Jira on Stream Deck](src/previews/1-preview.png)
 A Stream Deck plugin for viewing the number of Jira issues matching a JQL query (i.e. the number of new issues or issues waiting for your feedback).
 
 ## Features
