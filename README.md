@@ -11,10 +11,10 @@ A Stream Deck plugin for viewing the number of Jira issues matching a JQL query 
 * The plugin uses the action icon for showing the number of issues matching a query; customizing the action icon will prevent the badge from being shown.
 
 ## Installation
-### Plugin Store
-_Coming soon..._
+### Preferred: Stream Deck Store
+https://apps.elgato.com/plugins/com.mediabounds.streamdeck.jira
 
-### Manual installation
+### Alternative: Manual installation
 1. Download the latest release from <https://github.com/mediabounds/streamdeck-jira/releases>.
 2. Go to your download folder and open `com.mediabounds.streamdeck.jira.streamDeckPlugin`.
 
