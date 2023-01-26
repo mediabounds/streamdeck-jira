@@ -191,6 +191,7 @@ const jira = new Query({
   hasMultiActionSupport: false,
   tooltip: 'Displays a badge with the number of issues matching a JQL query.',
   states: [{ image: "Jira" }],
+  inspectorName: 'Query',
 });
 
 export default jira;

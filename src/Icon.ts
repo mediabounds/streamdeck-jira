@@ -55,6 +55,22 @@ export default class Icon {
   }
 
   /**
+   * Generates an icon using a local file as the base.
+   * 
+   * @param file - The file to use as the icon.
+   * @returns A promise that resolves to a loaded icon.
+   */
+  public static fromLocalFile(file: File): Promise<Icon> {
+    return new Promise<Icon>((resolve, reject) => {
+      const path = `file://${decodeURIComponent(file.name)}`;
+      (new Icon())
+        .addImage(path, 0, 0, ICON_SIZE, ICON_SIZE)
+        .then(resolve)
+        .catch(reject);
+    });
+  }
+
+  /**
    * Retrieves the current 2D drawing context.
    * @returns The current 2D drawing context.
    */
