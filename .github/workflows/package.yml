@@ -1,24 +1,29 @@
 name: Package
 
 on:
-  workflow_call:
-    inputs:
-      version:
-        required: true
-        type: string
+  pull_request:
+  release:
+    types: [published]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    outputs:
-      file: release/com.mediabounds.streamdeck.jira.streamDeckPlugin
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}   # checkout the correct branch name
+          fetch-depth: 0                # fetch the whole repo history
+      - name: Determine version
+        if: ${{github.event_name == 'pull_request'}}
+        id: version
+        uses: codacy/git-version@2.8.0
       - name: Write version
         uses: jossef/action-set-json-field@v2.1
         with:
           file: src/streamdeck.json
           field: version
-          value: ${{inputs.version}}
+          value: ${{github.event.release.name || steps.version.outputs.version}}
       - name: Set up Node
         uses: actions/setup-node@v3
         with:
@@ -41,3 +46,8 @@ jobs:
           name: com.mediabounds.streamdeck.jira-${{steps.version.outputs.version}}.streamDeckPlugin
           path: release/com.mediabounds.streamdeck.jira.streamDeckPlugin
           if-no-files-found: error
+      - name: Publish
+        if: ${{github.event_name == 'release'}}
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{steps.package.outputs.file}}
