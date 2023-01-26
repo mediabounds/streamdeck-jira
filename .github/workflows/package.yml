@@ -43,11 +43,11 @@ jobs:
       - name: Save artifact
         uses: actions/upload-artifact@v3
         with:
-          name: com.mediabounds.streamdeck.jira-${{steps.version.outputs.version}}.streamDeckPlugin
+          name: com.mediabounds.streamdeck.jira-${{github.event.release.name || steps.version.outputs.version}}.streamDeckPlugin
           path: release/com.mediabounds.streamdeck.jira.streamDeckPlugin
           if-no-files-found: error
       - name: Publish
         if: ${{github.event_name == 'release'}}
         uses: softprops/action-gh-release@v1
         with:
-          files: ${{steps.package.outputs.file}}
+          files: release/com.mediabounds.streamdeck.jira.streamDeckPlugin
