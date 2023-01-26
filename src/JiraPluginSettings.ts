@@ -25,6 +25,11 @@ export interface JQLQuerySettings extends BadgeSettings, PollingSettings, Defaul
    * The action to perform when the key is pressed.
    */
   keyAction: JQLQueryKeyAction;
+
+  /**
+   * Base64-encoded data of a custom image to use for the action.
+   */
+  customImage?: string;
 }
 
 /**
@@ -38,9 +43,35 @@ export interface PollingSettings {
 }
 
 /**
+ * Represents the type of badge to show on an icon.
+ */
+export enum BadgeType {
+  /**
+   * Shows a badge with the number inside of it.
+   */
+  Number = 'number',
+  /**
+   * Only shows the badge with no number.
+   */
+  Indicator = 'indicator',
+  /**
+   * Sets the value in the action title instead of updating the image.
+   */
+  UseTitle = 'title',
+  /**
+   * No badge.
+   */
+  Hidden = 'hidden'
+}
+
+/**
  * Settings used by actions that need to show a badge.
  */
 export interface BadgeSettings {
+  /**
+   * The type of badge to show on the icon.
+   */
+  badgeType: BadgeType;
   /**
    * The corner of the icon where the badge should be added.
    */

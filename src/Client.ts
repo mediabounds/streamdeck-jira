@@ -59,7 +59,9 @@ export default class Client {
     const headers = new Headers();
     this.defaultHeaders?.forEach((value, key) => headers.set(key, value));
     options.headers?.forEach((value, key) => headers.append(key, value));
-    headers.append('Authorization', this.authenticator.getAuthorizationHeader());
+    if (this.authenticator) {
+      headers.append('Authorization', this.authenticator.getAuthorizationHeader());
+    }
 
     const result = await fetch(this.getUrl(options), {
       method: options.method,
