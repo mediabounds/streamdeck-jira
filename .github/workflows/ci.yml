@@ -27,7 +27,7 @@ jobs:
       - name: Lint
         run: npm run lint
       - name: Package
-        run: npm package
+        run: npm run package
       # This step is necessary until https://github.com/fnando/streamdeck/pull/39 is addressed.
       - name: Add plugin previews
         run: |
