@@ -1,0 +1,19 @@
+name: Release
+on:
+  release:
+    types: [published]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Package
+        id: package
+        uses: ./.github/workflows/package.yml
+        with:
+          version: ${{github.event.release.name}}
+      - name: Publish
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{steps.package.outputs.file}}

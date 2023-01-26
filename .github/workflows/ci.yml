@@ -12,30 +12,7 @@ jobs:
       - name: Determine version
         id: version
         uses: codacy/git-version@2.8.0
-      - name: Write version
-        uses: jossef/action-set-json-field@v2.1
-        with:
-          file: src/streamdeck.json
-          field: version
-          value: ${{steps.version.outputs.version}}
-      - name: Set up Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-      - name: Install dependencies
-        run: npm ci
-      - name: Lint
-        run: npm run lint
       - name: Package
-        run: npm run package
-      # This step is necessary until https://github.com/fnando/streamdeck/pull/39 is addressed.
-      - name: Add plugin previews
-        run: |
-          cp -r src/previews build/com.mediabounds.streamdeck.jira.sdPlugin
-          cd build
-          zip -r ../release/com.mediabounds.streamdeck.jira.streamDeckPlugin com.mediabounds.streamdeck.jira.sdPlugin/previews/*
-      - name: Save artifact
-        uses: actions/upload-artifact@v3
+        uses: ./.github/workflows/package.yml
         with:
-          name: com.mediabounds.streamdeck.jira-${{steps.version.outputs.version}}.streamDeckPlugin
-          path: release/com.mediabounds.streamdeck.jira.streamDeckPlugin
+          version: ${{steps.version.outputs.version}}
