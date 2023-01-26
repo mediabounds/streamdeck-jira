@@ -1,6 +1,6 @@
 {
   "id": "com.mediabounds.streamdeck.jira",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "name": "Jira",
   "description": "Add actions for quickly monitoring and accessing Jira issues matching a JQL query.",
   "author": "Daniel Pfeiffer",

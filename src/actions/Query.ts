@@ -1,7 +1,7 @@
 import { DidReceiveSettingsEvent, KeyDownEvent } from "@fnando/streamdeck";
 import Client, { BasicAuth } from "../Client";
 import Icon, { BadgeOptions } from "../Icon";
-import { JQLQuerySettings } from "../JiraPluginSettings";
+import { BadgeType, JQLQuerySettings } from "../JiraPluginSettings";
 import { PollingErrorEvent, PollingResponseEvent } from "../PollingClient";
 import PollingAction, { ActionPollingContext } from "./PollingAction";
 
@@ -56,7 +56,7 @@ class Query extends PollingAction<SearchResponse, JQLQuerySettings> {
    * {@inheritDoc}
    */
   handleDidReceiveSettings(event: DidReceiveSettingsEvent<JQLQuerySettings>): void {
-    this.updateImage({
+    this.setBadge({
       value: `${this.getPollingClient()?.getLastResponse()?.total}`,
     }, event.settings);
     super.handleDidReceiveSettings(event);
@@ -96,7 +96,7 @@ class Query extends PollingAction<SearchResponse, JQLQuerySettings> {
       return;
     }
 
-    this.updateImage({
+    this.setBadge({
       value: `${event.response.total ?? 0}`,
     }, event.context.settings);
   }
@@ -106,7 +106,7 @@ class Query extends PollingAction<SearchResponse, JQLQuerySettings> {
    */
   handleDidReceivePollingError(event: PollingErrorEvent<ActionPollingContext<JQLQuerySettings>, SearchResponse>): void {
     super.handleDidReceivePollingError(event);
-    this.updateImage({
+    this.setBadge({
       value: '!',
       color: 'yellow',
       textColor: 'black',
@@ -132,15 +132,28 @@ class Query extends PollingAction<SearchResponse, JQLQuerySettings> {
   }
 
   /**
-   * Updates the action image.
+   * Updates the badge shown for the current action.
    * 
    * @param badge - Options to use for applying a badge to the icon.
    * @param settings - The current action settings.
    */
-  protected updateImage(badge: BadgeOptions, settings: JQLQuerySettings) {
-    if (badge.value == "0" || !badge.value.length) {
-      this.setImage(null);
+  protected setBadge(badge: BadgeOptions, settings: JQLQuerySettings) {
+    if (badge.value == "0" || !badge.value.length || settings.badgeType === BadgeType.Hidden) {
+      this.setImage(settings.customImage);
+      this.setTitle('');
       return;
+    }
+
+    if (settings.badgeType === BadgeType.UseTitle) {
+      this.setImage(settings.customImage);
+      this.setTitle(badge.value);
+      return;
+    }
+
+    this.setTitle('');
+
+    if (settings.badgeType === BadgeType.Indicator) {
+      badge.value = ' ';
     }
 
     if (!badge.color) {
@@ -152,7 +165,7 @@ class Query extends PollingAction<SearchResponse, JQLQuerySettings> {
     }
 
     (new Icon())
-      .addImage(this.getDefaultImage(), 0, 0, 144, 144)
+      .addImage(settings.customImage ?? this.getDefaultImage(), 0, 0, 144, 144)
       .then((icon) => {
         icon.setBadge(badge);
         this.setImage(icon.getImage());
@@ -178,6 +191,7 @@ const jira = new Query({
   hasMultiActionSupport: false,
   tooltip: 'Displays a badge with the number of issues matching a JQL query.',
   states: [{ image: "Jira" }],
+  inspectorName: 'Query',
 });
 
 export default jira;
