@@ -1,4 +1,5 @@
 import { Action, DidReceiveSettingsEvent, WillAppearEvent, WillDisappearEvent } from "@fnando/streamdeck";
+import { RequestError } from "../Client";
 import { PollingClient, PollingClientDelegate, PollingErrorEvent, PollingResponseEvent } from "../PollingClient";
 
 /**
@@ -77,6 +78,13 @@ export default abstract class PollingAction<ResponseType, SettingsType = unknown
     this.context = event.context.instance;
     this.device = event.context.device;
     this.logMessage(`[${this.constructor.name}] Received error while updating response: ${event.error.message}`);
+    if (event.error instanceof RequestError) {
+      if (typeof event.error.response.body === 'string') {
+        this.logMessage(event.error.response.body);
+      } else {
+        this.logMessage(JSON.stringify(event.error.response.body));
+      }
+    }
     this.debug('Received error while updating response:', event.error);
   }
 
