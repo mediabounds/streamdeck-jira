@@ -39,3 +39,17 @@ input[type="color"] {
   top: 0;
   width: 100%;
 }
+
+.polling-status {
+  text-align: right;
+  padding-right: 14px !important;
+  width: 100%;
+}
+
+.polling-status .success {
+  color: lightgreen;
+}
+
+.polling-status .warning {
+  color: yellow;
+}

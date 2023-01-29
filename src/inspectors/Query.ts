@@ -1,16 +1,18 @@
 import plugin from "../plugin";
 import { BadgeType, JQLQueryKeyAction, JQLQuerySettings } from "../JiraPluginSettings";
 import Icon, { BadgePosition } from "../Icon";
-import DefaultPropertyInspector from "../inspector";
+import PollingActionInspector from "../PollingActionInspector";
+import { ActionPollingDebugInfo } from "../actions/PollingAction";
 
 /**
  * Property inspector for the Query action.
  */
-class QueryActionPropertyInspector extends DefaultPropertyInspector<JQLQuerySettings> {
+class QueryActionPropertyInspector extends PollingActionInspector<JQLQuerySettings> {
   private domain = document.getElementById('domain') as HTMLInputElement;
   private email = document.getElementById('email') as HTMLInputElement;
   private token = document.getElementById('token') as HTMLInputElement;
   private jql = document.getElementById('jql') as HTMLTextAreaElement;
+  private status = document.getElementById('status-display');
   private keyAction = document.getElementById('key-action') as HTMLSelectElement;
   private keyActionLimit = document.getElementById('key-action-limit') as HTMLInputElement;
   private customImagePreview = document.getElementById('custom-image') as HTMLImageElement;
@@ -69,6 +71,21 @@ class QueryActionPropertyInspector extends DefaultPropertyInspector<JQLQuerySett
     this.badgePosition.value = settings.badgePosition;
     this.badgeColor.value = settings.badgeColor ?? '#FF0000';
     this.badgePosition.parentElement.hidden = this.badgeColor.parentElement.hidden = settings.badgeType == BadgeType.Hidden || settings.badgeType == BadgeType.UseTitle;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected handleReceiveDebugInfo(info: ActionPollingDebugInfo): void {
+    this.status.title = info.statusMessage;
+    this.status.onclick = () => alert(info.statusMessage);
+
+    if (info.success) {
+      this.status.innerHTML = '<span class="success">✓</span> Success';
+      return;
+    }
+
+    this.status.innerHTML = '<span class="warning">⚠️</span> Something is not right';
   }
 
   /**
