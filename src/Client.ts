@@ -36,9 +36,17 @@ export interface Authenticator {
  * but the server indicated the response was an error because the status code was 4xx or 5xx.
  */
 export class RequestError<T> extends Error {
-  constructor(public readonly response: Response<T>) {
-    // Assume that the first element in the JSON is an error message.
-    const message = JSON.stringify(response.body).match(/[[:]"(.*?)"/)[1] ?? 'The server returned an error';
+  constructor(public readonly response: Response<T>, statusText: string) {
+    let message: string;
+    let match: RegExpMatchArray;
+    // Assume that the first string in the body is an error message.
+    if ((match = JSON.stringify(response.body).match(/[[:]?"(.*?)"/))) {
+      // Strip any HTML tags.
+      message = match[1].replace(/(<([^>]+)>)/gi, "");
+    } else {
+      message = statusText;
+    }
+
     super(message);
   }
 }
@@ -74,12 +82,24 @@ export default class Client {
       body: options.body
     });
 
-    if (result.status >= 400 && result.status < 600) {
-      const response = await this.getResponse(result);
-      throw new RequestError(response);
+    if (!result.ok) {
+      const bodyText = await result.text();
+      let body: unknown;
+
+      // Even though the response was unsuccessful, see if the response body is JSON.
+      try {
+        body = JSON.parse(bodyText);
+      }
+      catch (error) {
+        body = bodyText;
+      }
+
+      const response = new Response(result.headers, body);
+      throw new RequestError(response, result.statusText);
     }
 
-    return this.getResponse(result);
+    const body = await result.json() as TResponse;
+    return new Response(result.headers, body);
   }
 
   /**
@@ -96,16 +116,6 @@ export default class Client {
     return url;
   }
 
-  /**
-   * Prepares a wrapped response to return to the caller.
-   * 
-   * @param rawResponse - The raw response received via the Fetch API.
-   * @returns A wrapped response with body and headers.
-   */
-  protected async getResponse<T>(rawResponse: globalThis.Response): Promise<Response<T>> {
-    const data = await rawResponse.json() as T;
-    return new Response(rawResponse.headers, data);
-  }
 }
 
 /**
