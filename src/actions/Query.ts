@@ -57,7 +57,7 @@ class Query extends PollingAction<SearchResponse, JQLQuerySettings> {
    */
   handleDidReceiveSettings(event: DidReceiveSettingsEvent<JQLQuerySettings>): void {
     this.setBadge({
-      value: `${this.getPollingClient()?.getLastResponse()?.total}`,
+      value: `${this.getPollingClient()?.getLastResponse()?.total ?? 0}`,
     }, event.settings);
     super.handleDidReceiveSettings(event);
   }
