@@ -54,3 +54,31 @@ input[type="color"] {
 .polling-status .warning {
   color: yellow;
 }
+
+.debug-modal {
+  color: #EEE;
+  font-family: sans-serif;
+}
+
+.debug-modal > * {
+  margin: 10px 0;
+}
+
+.debug-modal .debug-headers tr:nth-child(odd) {
+  background-color: rgba(0,0,0,0.15);
+}
+
+.debug-modal .debug-headers td {
+  font-family: monospace;
+}
+
+.debug-modal .debug-headers th {
+  font-size: 0.8em;
+  text-align: left;
+  vertical-align: top;
+}
+
+.debug-modal pre {
+  max-width: 100%;
+  overflow: auto;
+}
