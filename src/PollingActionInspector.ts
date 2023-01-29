@@ -80,23 +80,51 @@ export default abstract class PollingActionInspector<TSettings> extends DefaultP
   }
 }
 
+/**
+ * Convenience class for building an HTML document.
+ */
 class TagBuilder<T extends HTMLElement> {
   private readonly tag: T;
 
+  /**
+   * Creates a new tag builder.
+   * 
+   * @param doc - The parent document.
+   * @param tag - The tag name.
+   */
   constructor(doc: Document, tag: string) {
     this.tag = doc.createElement(tag) as T;
   }
 
+  /**
+   * Convenience creator for creating a new tag.
+   * 
+   * @param tag - The tag name.
+   * @param doc - The parent document (defaults to the current document).
+   * @returns A TagBuilder.
+   */
   static create<T extends HTMLElement>(tag: string, doc: Document | null = null): TagBuilder<T> {
     doc = doc ?? document;
     return new TagBuilder<T>(doc, tag);
   }
 
+  /**
+   * Adds multiple children to the element.
+   * 
+   * @param children - The children to add to the element.
+   * @returns The current TagBuilder (for chaining).
+   */
   addChilden(children: Array<TagBuilder<HTMLElement>> | Array<Element>): this {
     children.forEach((child: Element | TagBuilder<HTMLElement>) => this.addChild(child));
     return this;
   }
 
+  /**
+   * Adds a single child to the element.
+   * 
+   * @param child - The child to add to the element.
+   * @returns The current TagBuilder (for chaining).
+   */
   addChild(child: TagBuilder<HTMLElement> | Element): this {
     if (child instanceof Element) {
       this.tag.append(child);
@@ -107,21 +135,49 @@ class TagBuilder<T extends HTMLElement> {
     return this;
   }
 
+  /**
+   * Sets an ID on the element.
+   * 
+   * @param id - The ID to set on the element.
+   * @returns The current TagBuilder (for chaining).
+   */
   setId(id: string): this {
     this.tag.id = id;
     return this;
   }
 
+  /**
+   * Sets the classes on the element.
+   * 
+   * @param classes - An array of class names to add to the element.
+   * @returns The current TagBuilder (for chaining).
+   */
   setClasses(classes: [string]): this {
     this.tag.className = classes.join(' ');
     return this;
   }
 
+  /**
+   * Sets an attribute on the element tag.
+   * 
+   * @param name - The attribute name.
+   * @param value - The attribute value.
+   * @returns The current TagBuilder (for chaining).
+   */
   setAttribute(name: string, value: string): this {
     this.tag.setAttribute(name, value);
     return this;
   }
 
+  /**
+   * Sets the value of the element.
+   * 
+   * Determines if the value should be set in the `value` attribute
+   * or in the body of the tag.
+   * 
+   * @param value - The value to set.
+   * @returns The current TagBuilder (for chaining).
+   */
   setValue(value: string): this {
     if (this.tag instanceof HTMLInputElement
       || this.tag instanceof HTMLTextAreaElement) {
@@ -133,14 +189,31 @@ class TagBuilder<T extends HTMLElement> {
     return this;
   }
 
+  /**
+   * Retrieves the element being built.
+   * 
+   * @returns The built element.
+   */
   get(): T {
     return this.tag;
   }
 
+  /**
+   * Retrieves the HTML code for the current element.
+   * 
+   * @returns An HTML string of the current element.
+   */
   toHtmlString(): string {
     return this.tag.outerHTML;
   }
 
+  /**
+   * Generates a data URI for the element.
+   * 
+   * Suitable for opening in a browser window.
+   * 
+   * @returns A data URI representing the current element.
+   */
   toDataUri(): string {
     return `data:text/html,${encodeURI(this.toHtmlString())}`;
   }
