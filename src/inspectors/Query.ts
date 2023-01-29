@@ -79,6 +79,7 @@ class QueryActionPropertyInspector extends PollingActionInspector<JQLQuerySettin
   protected handleReceiveDebugInfo(info: ActionPollingDebugInfo): void {
     this.status.title = info.statusMessage;
     this.status.onclick = () => alert(info.statusMessage);
+    this.status.onauxclick = () => alert(info.responseBody ?? info.statusMessage);
 
     if (info.success) {
       this.status.innerHTML = '<span class="success">✓</span> Success';

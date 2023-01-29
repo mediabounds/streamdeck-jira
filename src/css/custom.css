@@ -41,8 +41,9 @@ input[type="color"] {
 }
 
 .polling-status {
-  text-align: right;
+  cursor: pointer;
   padding-right: 14px !important;
+  text-align: right;
   width: 100%;
 }
 
