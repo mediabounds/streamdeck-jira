@@ -19,7 +19,45 @@ export interface RequestOptions {
  * A response to a request.
  */
 class Response<T = unknown> {
-  constructor(public readonly headers: Headers, public readonly body: T) {}
+  constructor(private readonly headers: Headers, public readonly body: T) {}
+
+  /**
+   * Retrieves all headers from the response in a JSON-encodable format.
+   *
+   * @returns All headers in the response.
+   */
+  getAllHeaders(): {[key: string]: string} {
+    const headers: {[key: string]: string} = {};
+    this.headers.forEach((value, name) => {
+      headers[name] = value;
+    });
+    return headers;
+  }
+
+  /**
+   * Retrieves a specific header from the response.
+   *
+   * @param name - The name of the header.
+   * @returns The value of the header
+   */
+  getHeader(name: string): string | null {
+    return this.headers.get(name);
+  }
+
+  /**
+   * Retrieves the body of the response as a string.
+   * 
+   * Useful for logging the response.
+   * 
+   * @returns The body of the response as a string.
+   */
+  getBodyContents(): string {
+    if (typeof this.body === 'string') {
+      return this.body;
+    }
+
+    return JSON.stringify(this.body, null, 2);
+  }
 }
 
 /**

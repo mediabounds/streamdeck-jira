@@ -1,4 +1,4 @@
-import { Action, DidReceiveSettingsEvent, WillAppearEvent, WillDisappearEvent } from "@fnando/streamdeck";
+import { Action, DidReceiveSettingsEvent, PropertyInspectorDidAppearEvent, WillAppearEvent, WillDisappearEvent } from "@fnando/streamdeck";
 import { RequestError } from "../Client";
 import { PollingClient, PollingClientDelegate, PollingErrorEvent, PollingResponseEvent } from "../PollingClient";
 
@@ -9,6 +9,16 @@ export interface ActionPollingContext<SettingsType> {
   instance: string;
   device: string;
   settings: SettingsType;
+}
+
+/**
+ * Information passed to the property inspector about the status of the last request.
+ */
+export interface ActionPollingDebugInfo {
+  success: boolean;
+  statusMessage: string;
+  responseHeaders?: {[key: string]: string};
+  responseBody?: string;
 }
 
 /**
@@ -50,6 +60,14 @@ export default abstract class PollingAction<ResponseType, SettingsType = unknown
   /**
    * {@inheritDoc}
    */
+  handlePropertyInspectorDidAppear(event: PropertyInspectorDidAppearEvent<unknown>): void {
+    super.handlePropertyInspectorDidAppear(event);
+    this.getPollingClient()?.poll();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   handleDidReceiveSettings(event: DidReceiveSettingsEvent<SettingsType>): void {
     super.handleDidReceiveSettings(event);
     const context = this.getPollingClient()?.getContext();
@@ -69,6 +87,13 @@ export default abstract class PollingAction<ResponseType, SettingsType = unknown
     this.context = event.context.instance;
     this.device = event.context.device;
     this.debug('Received updated response:', event.response);
+
+    const info: ActionPollingDebugInfo = {
+      success: true,
+      statusMessage: 'Success',
+    };
+
+    this.sendToPropertyInspector(info);
   }
 
   /**
@@ -79,13 +104,18 @@ export default abstract class PollingAction<ResponseType, SettingsType = unknown
     this.device = event.context.device;
     this.logMessage(`[${this.constructor.name}] Received error while updating response: ${event.error.message}`);
     if (event.error instanceof RequestError) {
-      if (typeof event.error.response.body === 'string') {
-        this.logMessage(event.error.response.body);
-      } else {
-        this.logMessage(JSON.stringify(event.error.response.body));
-      }
+      this.logMessage(event.error.response.getBodyContents());
     }
     this.debug('Received error while updating response:', event.error);
+
+    const info: ActionPollingDebugInfo = {
+      success: false,
+      statusMessage: event.error.message,
+      responseHeaders: event.error instanceof RequestError ? event.error.response.getAllHeaders() : null,
+      responseBody: event.error instanceof RequestError ? event.error.response.getBodyContents() : null,
+    };
+
+    this.sendToPropertyInspector(info);
   }
 
   /**
