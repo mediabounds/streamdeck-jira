@@ -170,3 +170,12 @@ export class BasicAuth implements Authenticator {
   }
 }
 
+/**
+ * Authenticates requests using a bearer token.
+ */
+export class TokenAuth implements Authenticator {
+  constructor(private token: string) {}
+  public getAuthorizationHeader(): string {
+    return `Bearer ${this.token}`;
+  }
+}

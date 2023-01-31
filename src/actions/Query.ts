@@ -1,5 +1,5 @@
 import { DidReceiveSettingsEvent, KeyDownEvent } from "@fnando/streamdeck";
-import Client, { BasicAuth } from "../Client";
+import Client, { Authenticator, BasicAuth, TokenAuth } from "../Client";
 import Icon, { BadgeOptions } from "../Icon";
 import { BadgeType, JQLQuerySettings } from "../JiraPluginSettings";
 import { PollingErrorEvent, PollingResponseEvent } from "../PollingClient";
@@ -66,7 +66,7 @@ class Query extends PollingAction<SearchResponse, JQLQuerySettings> {
    * {@inheritDoc}
    */
   protected async getResponse(context: ActionPollingContext<JQLQuerySettings>): Promise<SearchResponse> {
-    const {domain, email: username, token: password, jql} = context.settings;
+    const {domain, email: username, token: password, strategy, jql} = context.settings;
 
     if (!domain || !jql) {
       return {
@@ -75,7 +75,14 @@ class Query extends PollingAction<SearchResponse, JQLQuerySettings> {
       };
     }
 
-    const client = new Client(`https://${domain}`, new BasicAuth(username, password));
+    let authenticator: Authenticator;
+    if (strategy === 'PAT') {
+      authenticator = new TokenAuth(password);
+    } else {
+      authenticator = new BasicAuth(username, password);
+    }
+
+    const client = new Client(`https://${domain}`, authenticator);
 
     const response = await client.request<SearchResponse>({
       endpoint: 'rest/api/3/search',
