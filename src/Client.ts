@@ -77,11 +77,15 @@ export class RequestError<T> extends Error {
   constructor(public readonly response: Response<T>, statusText: string) {
     let message: string;
     let match: RegExpMatchArray;
-    // Assume that the first string in the body is an error message.
-    if ((match = JSON.stringify(response.body).match(/(\[|:|^)"(.*?)"/))) {
-      // Strip any HTML tags.
-      message = match[2].replace(/(<([^>]+)>)/gi, "");
-    } else {
+
+    if (typeof response.body === 'string') {
+      message = response.body.replace(/(<([^>]+)>)/gi, "");
+    }
+    else if ((match = JSON.stringify(response.body).match(/(\[|:|^)"(.*?)"/))) {
+      // Assume that the first string in the body is an error message.
+      message = match[2]
+    }
+    else {
       message = statusText;
     }
 
