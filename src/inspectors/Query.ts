@@ -131,6 +131,9 @@ class QueryActionPropertyInspector extends PollingActionInspector<JQLQuerySettin
       badgeColor: this.badgeColor.value ?? 'red',
     };
 
+    // Clear out the status indicator until we get an updated response.
+    this.status.innerText = '';
+
     this.setSettings(settings);
     this.setGlobalSettings({
       domain: settings.domain,

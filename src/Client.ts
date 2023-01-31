@@ -79,7 +79,7 @@ export class RequestError<T> extends Error {
     let match: RegExpMatchArray;
 
     if (typeof response.body === 'string') {
-      message = response.body.replace(/(<([^>]+)>)/gi, "");
+      message = response.body.replace(/(<([^>]+)>)/gi, "").trim();
     }
     else if ((match = JSON.stringify(response.body).match(/(\[|:|^)"(.*?)"/))) {
       // Assume that the first string in the body is an error message.
@@ -124,24 +124,23 @@ export default class Client {
       body: options.body
     });
 
-    if (!result.ok) {
-      const bodyText = await result.text();
-      let body: unknown;
+    const bodyText = await result.text();
+    let success = result.ok;
+    let body: unknown;
+    try {
+      body = JSON.parse(bodyText);
+    }
+    catch (error) {
+      success = false;
+      body = bodyText;
+    }
 
-      // Even though the response was unsuccessful, see if the response body is JSON.
-      try {
-        body = JSON.parse(bodyText);
-      }
-      catch (error) {
-        body = bodyText;
-      }
-
+    if (!success) {
       const response = new Response(result.headers, body);
       throw new RequestError(response, result.statusText);
     }
 
-    const body = await result.json() as TResponse;
-    return new Response(result.headers, body);
+    return new Response(result.headers, <TResponse>body);
   }
 
   /**
