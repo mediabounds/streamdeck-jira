@@ -8,6 +8,7 @@ A Stream Deck plugin for viewing the number of Jira issues matching a JQL query 
 * The button opens each matching issue in a separate browser window
 * Many customization options for how the badge is displayed
 * Allows for custom icons to be set
+* Supports Jira Cloud and Jira Server (8.14 and later)
 
 ## Installation
 ### Preferred: Stream Deck Store
@@ -20,8 +21,11 @@ https://apps.elgato.com/plugins/com.mediabounds.streamdeck.jira
 ## Configuration
 ### Global settings
 * **Domain** -- the product URL for your Jira organization (i.e. `organization.atlassian.net`)
+* **Type** -- whether your Jira instance is Jira Cloud or Jira Server
 * **Email** -- the email address for your Atlassian account
-* **API Token** -- an API token for your account which can be created at <https://id.atlassian.com/manage-profile/security/api-tokens>.
+* **API Token** -- an API token for your account
+  * For Jira Cloud, this can be created at <https://id.atlassian.com/manage-profile/security/api-tokens>
+  * For Jira Server, you'll need a [Personal Access Token](https://confluence.atlassian.com/enterprise/using-personal-access-tokens-1026032365.html)
 
 ### JQL Result action
 In addition to the **Global settings**, the JQL Result action also requires:

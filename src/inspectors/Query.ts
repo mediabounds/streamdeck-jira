@@ -11,6 +11,7 @@ class QueryActionPropertyInspector extends PollingActionInspector<JQLQuerySettin
   private domain = document.getElementById('domain') as HTMLInputElement;
   private email = document.getElementById('email') as HTMLInputElement;
   private token = document.getElementById('token') as HTMLInputElement;
+  private tokenType = document.getElementById('token-type') as HTMLSelectElement;
   private jql = document.getElementById('jql') as HTMLTextAreaElement;
   private status = document.getElementById('status-display');
   private keyAction = document.getElementById('key-action') as HTMLSelectElement;
@@ -41,9 +42,11 @@ class QueryActionPropertyInspector extends PollingActionInspector<JQLQuerySettin
 
     // Base settings.
     this.domain.value = settings.domain;
+    this.tokenType.value = settings.strategy;
     this.email.value = settings.email;
     this.token.value = settings.token;
     this.jql.value = settings.jql;
+    document.querySelectorAll('[x-token-type]').forEach(el => (<HTMLElement>el).hidden = el.getAttribute('x-token-type') != this.tokenType.value);
 
     // Action settings.
     this.keyActionLimit.hidden = true;
@@ -119,6 +122,7 @@ class QueryActionPropertyInspector extends PollingActionInspector<JQLQuerySettin
         .trim(),
       email: this.email.value.trim(),
       token: this.token.value.trim(),
+      strategy: <'APIToken'|'PAT'>this.tokenType.value,
       jql: this.jql.value.trim(),
       keyAction: this.getKeyAction(),
       pollingDelay: this.settings.pollingDelay,
@@ -136,6 +140,7 @@ class QueryActionPropertyInspector extends PollingActionInspector<JQLQuerySettin
       domain: settings.domain,
       email: settings.email,
       token: settings.token,
+      strategy: settings.strategy,
     });
   }
 
@@ -148,6 +153,7 @@ class QueryActionPropertyInspector extends PollingActionInspector<JQLQuerySettin
       domain: this.globalSettings.domain ?? '',
       email: this.globalSettings.email ?? '',
       token: this.globalSettings.token ?? '',
+      strategy: this.globalSettings.strategy ?? 'APIToken',
       jql: '',
       keyAction: {
         limit: 5,
