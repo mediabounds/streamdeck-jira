@@ -100,15 +100,4 @@ export interface DefaultPluginSettings {
    * @see https://id.atlassian.com/manage-profile/security/api-tokens
    */
   token: string;
-
-  /**
-   * The authentication strategy to use.
-   * 
-   * API tokens are for JIRA cloud.
-   * @see https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/
-   * 
-   * Personal access tokens (PAT) are for JIRA server.
-   * @see https://confluence.atlassian.com/enterprise/using-personal-access-tokens-1026032365.html
-   */
-  strategy: 'APIToken' | 'PAT'
 }
