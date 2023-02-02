@@ -19,7 +19,45 @@ export interface RequestOptions {
  * A response to a request.
  */
 class Response<T = unknown> {
-  constructor(public readonly headers: Headers, public readonly body: T) {}
+  constructor(private readonly headers: Headers, public readonly body: T) {}
+
+  /**
+   * Retrieves all headers from the response in a JSON-encodable format.
+   *
+   * @returns All headers in the response.
+   */
+  getAllHeaders(): {[key: string]: string} {
+    const headers: {[key: string]: string} = {};
+    this.headers.forEach((value, name) => {
+      headers[name] = value;
+    });
+    return headers;
+  }
+
+  /**
+   * Retrieves a specific header from the response.
+   *
+   * @param name - The name of the header.
+   * @returns The value of the header
+   */
+  getHeader(name: string): string | null {
+    return this.headers.get(name);
+  }
+
+  /**
+   * Retrieves the body of the response as a string.
+   * 
+   * Useful for logging the response.
+   * 
+   * @returns The body of the response as a string.
+   */
+  getBodyContents(): string {
+    if (typeof this.body === 'string') {
+      return this.body;
+    }
+
+    return JSON.stringify(this.body, null, 2);
+  }
 }
 
 /**
@@ -36,9 +74,21 @@ export interface Authenticator {
  * but the server indicated the response was an error because the status code was 4xx or 5xx.
  */
 export class RequestError<T> extends Error {
-  constructor(public readonly response: Response<T>) {
-    // Assume that the first element in the JSON is an error message.
-    const message = JSON.stringify(response.body).match(/[[:]"(.*?)"/)[1] ?? 'The server returned an error';
+  constructor(public readonly response: Response<T>, statusText: string) {
+    let message: string;
+    let match: RegExpMatchArray;
+
+    if (typeof response.body === 'string') {
+      message = response.body.replace(/(<([^>]+)>)/gi, "").trim();
+    }
+    else if ((match = JSON.stringify(response.body).match(/(\[|:|^)"(.*?)"/))) {
+      // Assume that the first string in the body is an error message.
+      message = match[2]
+    }
+    else {
+      message = statusText;
+    }
+
     super(message);
   }
 }
@@ -74,12 +124,23 @@ export default class Client {
       body: options.body
     });
 
-    if (result.status >= 400 && result.status < 600) {
-      const response = await this.getResponse(result);
-      throw new RequestError(response);
+    const bodyText = await result.text();
+    let success = result.ok;
+    let body: unknown;
+    try {
+      body = JSON.parse(bodyText);
+    }
+    catch (error) {
+      success = false;
+      body = bodyText;
     }
 
-    return this.getResponse(result);
+    if (!success) {
+      const response = new Response(result.headers, body);
+      throw new RequestError(response, result.statusText);
+    }
+
+    return new Response(result.headers, <TResponse>body);
   }
 
   /**
@@ -96,16 +157,6 @@ export default class Client {
     return url;
   }
 
-  /**
-   * Prepares a wrapped response to return to the caller.
-   * 
-   * @param rawResponse - The raw response received via the Fetch API.
-   * @returns A wrapped response with body and headers.
-   */
-  protected async getResponse<T>(rawResponse: globalThis.Response): Promise<Response<T>> {
-    const data = await rawResponse.json() as T;
-    return new Response(rawResponse.headers, data);
-  }
 }
 
 /**
