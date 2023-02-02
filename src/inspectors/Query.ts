@@ -42,10 +42,11 @@ class QueryActionPropertyInspector extends PollingActionInspector<JQLQuerySettin
 
     // Base settings.
     this.domain.value = settings.domain;
+    this.tokenType.value = settings.strategy;
     this.email.value = settings.email;
     this.token.value = settings.token;
     this.jql.value = settings.jql;
-    this.tokenType.value = settings.strategy;
+    document.querySelectorAll('[x-token-type]').forEach(el => (<HTMLElement>el).hidden = el.getAttribute('x-token-type') != this.tokenType.value);
 
     // Action settings.
     this.keyActionLimit.hidden = true;
