@@ -77,7 +77,7 @@ class Query extends PollingAction<SearchResponse, JQLQuerySettings> {
 
     const client = JiraConnection.getClient(context.settings);
     const response = await client.request<SearchResponse>({
-      endpoint: 'rest/api/3/search',
+      endpoint: 'rest/api/latest/search',
       query: {
         jql: jql,
       },
