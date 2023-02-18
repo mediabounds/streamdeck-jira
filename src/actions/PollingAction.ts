@@ -1,5 +1,7 @@
 import { Action, DidReceiveSettingsEvent, PropertyInspectorDidAppearEvent, WillAppearEvent, WillDisappearEvent } from "@fnando/streamdeck";
 import { RequestError } from "../Client";
+import Icon, { BadgeOptions } from "../Icon";
+import { IconSettings, BadgeType, PollingSettings } from "../JiraPluginSettings";
 import { PollingClient, PollingClientDelegate, PollingErrorEvent, PollingResponseEvent } from "../PollingClient";
 
 /**
@@ -24,7 +26,7 @@ export interface ActionPollingDebugInfo {
 /**
  * Base class for an action that needs to periodically poll another source for status updates.
  */
-export default abstract class PollingAction<ResponseType, SettingsType = unknown> extends Action<SettingsType> implements PollingClientDelegate<ActionPollingContext<SettingsType>, ResponseType> {
+export default abstract class PollingAction<ResponseType, SettingsType = PollingSettings> extends Action<SettingsType> implements PollingClientDelegate<ActionPollingContext<SettingsType>, ResponseType> {
   /**
    * Active polling clients.
    * 
@@ -133,7 +135,7 @@ export default abstract class PollingAction<ResponseType, SettingsType = unknown
    * @returns The number of seconds to wait in between each polling event; default is 120 seconds.
    */
   protected getPollingDelay(settings: SettingsType): number {
-    return 120;
+    return settings.pollingDelay ?? 120;
   }
 
   /**
@@ -143,6 +145,59 @@ export default abstract class PollingAction<ResponseType, SettingsType = unknown
    */
   protected getPollingClient(): PollingClient<ActionPollingContext<SettingsType>, ResponseType> | null {
     return this.clients[this.getClientKey()] ?? null;
+  }
+
+  /**
+   * Updates the badge shown for the current action.
+   * 
+   * @param badge - Options to use for applying a badge to the icon.
+   * @param settings - The current action settings.
+   */
+  protected setBadge(badge: BadgeOptions, settings: IconSettings) {
+    if (badge.value == "0" || !badge.value.length || settings.badgeType === BadgeType.Hidden) {
+      this.setImage(settings.customImage);
+      this.setTitle('');
+      return;
+    }
+
+    if (settings.badgeType === BadgeType.UseTitle) {
+      this.setImage(settings.customImage);
+      this.setTitle(badge.value);
+      return;
+    }
+
+    this.setTitle('');
+
+    if (settings.badgeType === BadgeType.Indicator) {
+      badge.value = ' ';
+    }
+
+    if (!badge.color) {
+      badge.color = settings.badgeColor;
+    }
+
+    if (!badge.position) {
+      badge.position = settings.badgePosition;
+    }
+
+    (new Icon())
+      .addImage(settings.customImage ?? this.getDefaultImage(), 0, 0, 144, 144)
+      .then((icon) => {
+        icon.setBadge(badge);
+        this.setImage(icon.getImage());
+      })
+      .catch((error) => {
+        this.setImage(null);
+      });
+  }
+
+  /**
+   * Retrieves the path to the default image for the action.
+   * 
+   * @returns The path to the default image for the current action.
+   */
+  protected getDefaultImage(): string {
+    return `images/actions/${this.constructor.name}/${this.states[0].image}@2x.png`;
   }
 
   /**

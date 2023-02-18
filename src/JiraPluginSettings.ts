@@ -27,6 +27,10 @@ export interface JQLQuerySettings extends IconSettings, PollingSettings, Default
   keyAction: JQLQueryKeyAction;
 }
 
+export interface ConfluenceTasksSettings extends IconSettings, PollingSettings, DefaultPluginSettings {
+  
+}
+
 /**
  * Settings used by actions that periodically poll for updated data.
  */

@@ -1,7 +1,6 @@
 import { DidReceiveSettingsEvent, KeyDownEvent } from "@fnando/streamdeck";
-import Icon, { BadgeOptions } from "../Icon";
 import { JiraConnection } from "../JiraConnection";
-import { BadgeType, JQLQuerySettings } from "../JiraPluginSettings";
+import { JQLQuerySettings } from "../JiraPluginSettings";
 import { PollingErrorEvent, PollingResponseEvent } from "../PollingClient";
 import PollingAction, { ActionPollingContext } from "./PollingAction";
 
@@ -113,13 +112,6 @@ class Query extends PollingAction<SearchResponse, JQLQuerySettings> {
   }
 
   /**
-   * {@inheritDoc}
-   */
-  protected getPollingDelay(settings: JQLQuerySettings): number {
-    return settings.pollingDelay ?? super.getPollingDelay(settings);
-  }
-
-  /**
    * Retrieves an issue URL for a provided issue.
    *
    * @param issue - The issue.
@@ -128,59 +120,6 @@ class Query extends PollingAction<SearchResponse, JQLQuerySettings> {
    */
   protected getIssueUrl(issue: Issue, settings: JQLQuerySettings): string {
     return `https://${settings.domain}/browse/${issue.key}`;
-  }
-
-  /**
-   * Updates the badge shown for the current action.
-   * 
-   * @param badge - Options to use for applying a badge to the icon.
-   * @param settings - The current action settings.
-   */
-  protected setBadge(badge: BadgeOptions, settings: JQLQuerySettings) {
-    if (badge.value == "0" || !badge.value.length || settings.badgeType === BadgeType.Hidden) {
-      this.setImage(settings.customImage);
-      this.setTitle('');
-      return;
-    }
-
-    if (settings.badgeType === BadgeType.UseTitle) {
-      this.setImage(settings.customImage);
-      this.setTitle(badge.value);
-      return;
-    }
-
-    this.setTitle('');
-
-    if (settings.badgeType === BadgeType.Indicator) {
-      badge.value = ' ';
-    }
-
-    if (!badge.color) {
-      badge.color = settings.badgeColor;
-    }
-
-    if (!badge.position) {
-      badge.position = settings.badgePosition;
-    }
-
-    (new Icon())
-      .addImage(settings.customImage ?? this.getDefaultImage(), 0, 0, 144, 144)
-      .then((icon) => {
-        icon.setBadge(badge);
-        this.setImage(icon.getImage());
-      })
-      .catch((error) => {
-        this.setImage(null);
-      });
-  }
-
-  /**
-   * Retrieves the path to the default image for the action.
-   * 
-   * @returns The path to the default image for the current action.
-   */
-  protected getDefaultImage(): string {
-    return `images/actions/${this.constructor.name}/${this.states[0].image}@2x.png`;
   }
 
 }
