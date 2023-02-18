@@ -3,15 +3,13 @@ import { BadgeType, JQLQueryKeyAction, JQLQuerySettings } from "../JiraPluginSet
 import Icon, { BadgePosition } from "../Icon";
 import PollingActionInspector from "../PollingActionInspector";
 import { ActionPollingDebugInfo } from "../actions/PollingAction";
+import { AuthenticationComponent } from "./Components";
 
 /**
  * Property inspector for the Query action.
  */
 class QueryActionPropertyInspector extends PollingActionInspector<JQLQuerySettings> {
-  private domain: HTMLInputElement;
-  private email: HTMLInputElement;
-  private token: HTMLInputElement;
-  private tokenType: HTMLSelectElement;
+  private authentication = document.getElementById('auth') as AuthenticationComponent;
   private jql = document.getElementById('jql') as HTMLTextAreaElement;
   private status = document.getElementById('status-display');
   private keyAction = document.getElementById('key-action') as HTMLSelectElement;
@@ -28,12 +26,7 @@ class QueryActionPropertyInspector extends PollingActionInspector<JQLQuerySettin
   handleDidConnectToSocket(): void {
     super.handleDidConnectToSocket();
 
-    this.domain = document.getElementById('domain') as HTMLInputElement;
-    this.email = document.getElementById('email') as HTMLInputElement;
-    this.token = document.getElementById('token') as HTMLInputElement;
-    this.tokenType = document.getElementById('token-type') as HTMLSelectElement;
-
-    const fields = document.querySelectorAll('input, textarea, select');
+    const fields = document.querySelectorAll('input, textarea, select, pi-authentication');
     fields.forEach(field => {
       field.addEventListener('change', (e) => this.handleFieldUpdated(e));
     });
@@ -47,12 +40,8 @@ class QueryActionPropertyInspector extends PollingActionInspector<JQLQuerySettin
     const settings = Object.assign({}, this.getDefaultSettings(), this.settings);
 
     // Base settings.
-    this.domain.value = settings.domain;
-    this.tokenType.value = settings.strategy;
-    this.email.value = settings.email;
-    this.token.value = settings.token;
+    this.authentication.value = settings;
     this.jql.value = settings.jql;
-    document.querySelectorAll('[x-token-type]').forEach(el => (<HTMLElement>el).hidden = el.getAttribute('x-token-type') != this.tokenType.value);
 
     // Action settings.
     this.keyActionLimit.hidden = true;
@@ -122,13 +111,13 @@ class QueryActionPropertyInspector extends PollingActionInspector<JQLQuerySettin
    */
   protected saveSettings(): void {
     const settings: JQLQuerySettings = {
-      domain: this.domain.value
+      domain: this.authentication.value.domain
         .replace(/^https?:\/\//, '')
         .replace(/\/.*$/, '')
         .trim(),
-      email: this.email.value.trim(),
-      token: this.token.value.trim(),
-      strategy: <'APIToken'|'PAT'>this.tokenType.value,
+      email: this.authentication.value.email.trim(),
+      token: this.authentication.value.token.trim(),
+      strategy: this.authentication.value.strategy,
       jql: this.jql.value.trim(),
       keyAction: this.getKeyAction(),
       pollingDelay: this.settings.pollingDelay,

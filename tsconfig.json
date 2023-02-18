@@ -2,6 +2,8 @@
   "compilerOptions": {
     "outDir": "./dist",
     "resolveJsonModule": true,
-    "lib": ["ES2015", "DOM"]
+    "moduleResolution": "node",
+    "lib": ["ES2015", "DOM"],
+    "target": "ES2018"
   }
 }
