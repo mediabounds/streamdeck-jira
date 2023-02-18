@@ -1,3 +1,4 @@
+import { ActionPollingDebugInfo } from "../actions/PollingAction";
 import Icon, { BadgePosition } from "../Icon";
 import { BadgeType, DefaultPluginSettings, IconSettings } from "../JiraPluginSettings";
 
@@ -53,9 +54,12 @@ export class AuthenticationComponent extends PropertyInspectorComponent<DefaultP
 
   get value(): DefaultPluginSettings {
     return {
-      domain: this.domain.value,
-      email: this.email.value,
-      token: this.token.value,
+      domain: this.domain.value
+        .replace(/^https?:\/\//, '')
+        .replace(/\/.*$/, '')
+        .trim(),
+      email: this.email.value.trim(),
+      token: this.token.value.trim(),
       strategy: <'APIToken'|'PAT'>this.tokenType.value,
     };
   }
@@ -190,5 +194,41 @@ export class IconComponent extends PropertyInspectorComponent<IconSettings> {
 
 }
 
+export class StatusComponent extends PropertyInspectorComponent<ActionPollingDebugInfo> {
+  private currentStatus?: ActionPollingDebugInfo;
+  private status = document.getElementById('status-display');
+
+  get template(): string {
+    return 'status.component.html';
+  }
+
+  get value(): ActionPollingDebugInfo {
+    return this.currentStatus;
+  }
+
+  set value(newValue: ActionPollingDebugInfo) {
+    this.currentStatus = newValue;
+
+    this.status.title = newValue.statusMessage;
+
+    if (newValue.success) {
+      this.status.innerHTML = '<span class="success">✓</span> Success';
+      return;
+    }
+
+    this.status.innerHTML = '<span class="warning">⚠️</span> Something is not right';
+  }
+
+  public clear(): void {
+    this.status.innerText = '';
+  }
+
+  protected onTemplateLoaded(): void {
+    super.onTemplateLoaded();
+    this.status = this.querySelector('#status-display');
+  }
+}
+
 customElements.define('pi-authentication', AuthenticationComponent);
 customElements.define('pi-icon', IconComponent);
+customElements.define('pi-status', StatusComponent);

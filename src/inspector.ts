@@ -1,14 +1,17 @@
 import { DidReceiveGlobalSettingsEvent, DidReceiveSettingsEvent, Inspector } from "@fnando/streamdeck";
-import plugin from "./plugin";
 import { DefaultPluginSettings } from "./JiraPluginSettings";
 
-
-export default class DefaultPropertyInspector<TSettings = DefaultPluginSettings> extends Inspector<TSettings, DefaultPluginSettings> {
+export default abstract class DefaultPropertyInspector<TSettings = DefaultPluginSettings> extends Inspector<TSettings, DefaultPluginSettings> {
   protected settings: TSettings;
   protected globalSettings: DefaultPluginSettings;
 
   handleDidConnectToSocket(): void {
     super.handleDidConnectToSocket();
+
+    const fields = document.querySelectorAll('input, textarea, select, pi-authentication, pi-icon');
+    fields.forEach(field => {
+      field.addEventListener('change', (e) => this.handleFieldUpdated(e));
+    });
 
     // Ensure links open in a browser window.
     document
@@ -43,10 +46,13 @@ export default class DefaultPropertyInspector<TSettings = DefaultPluginSettings>
     this.globalSettings = payload;
   }
 
+  /**
+   * Invoked when a field changes value.
+   * @param event - The change event.
+   */
+  protected abstract handleFieldUpdated(event: Event): void;
+
   protected updateForm(): void {
     // Do nothing.
   }
 }
-
-const inspector = new DefaultPropertyInspector({ plugin });
-inspector.run();

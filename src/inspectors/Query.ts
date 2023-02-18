@@ -2,7 +2,6 @@ import plugin from "../plugin";
 import { BadgeType, JQLQueryKeyAction, JQLQuerySettings } from "../JiraPluginSettings";
 import { BadgePosition } from "../Icon";
 import PollingActionInspector from "../PollingActionInspector";
-import { ActionPollingDebugInfo } from "../actions/PollingAction";
 import { AuthenticationComponent, IconComponent } from "./Components";
 
 /**
@@ -12,21 +11,8 @@ class QueryActionPropertyInspector extends PollingActionInspector<JQLQuerySettin
   private authentication = document.getElementById('auth') as AuthenticationComponent;
   private icon = document.getElementById('icon') as IconComponent;
   private jql = document.getElementById('jql') as HTMLTextAreaElement;
-  private status = document.getElementById('status-display');
   private keyAction = document.getElementById('key-action') as HTMLSelectElement;
   private keyActionLimit = document.getElementById('key-action-limit') as HTMLInputElement;
-
-  /**
-   * {@inheritDoc}
-   */
-  handleDidConnectToSocket(): void {
-    super.handleDidConnectToSocket();
-
-    const fields = document.querySelectorAll('input, textarea, select, pi-authentication, pi-icon');
-    fields.forEach(field => {
-      field.addEventListener('change', (e) => this.handleFieldUpdated(e));
-    });
-  }
 
   /**
    * {@inheritDoc}
@@ -54,29 +40,6 @@ class QueryActionPropertyInspector extends PollingActionInspector<JQLQuerySettin
   /**
    * {@inheritdoc}
    */
-  protected handleReceiveDebugInfo(info: ActionPollingDebugInfo): void {
-    this.status.title = info.statusMessage;
-    this.status.onclick = () => alert(info.statusMessage);
-    this.status.onauxclick = () => {
-      if (!info.responseBody) {
-        return;
-      }
-
-      this.openDebugModal(info);
-    };
-
-    if (info.success) {
-      this.status.innerHTML = '<span class="success">✓</span> Success';
-      return;
-    }
-
-    this.status.innerHTML = '<span class="warning">⚠️</span> Something is not right';
-  }
-
-  /**
-   * Invoked when a field changes value.
-   * @param event - The change event.
-   */
   protected handleFieldUpdated(event: Event): void {
     this.saveSettings();
   }
@@ -86,12 +49,9 @@ class QueryActionPropertyInspector extends PollingActionInspector<JQLQuerySettin
    */
   protected saveSettings(): void {
     const settings: JQLQuerySettings = {
-      domain: this.authentication.value.domain
-        .replace(/^https?:\/\//, '')
-        .replace(/\/.*$/, '')
-        .trim(),
-      email: this.authentication.value.email.trim(),
-      token: this.authentication.value.token.trim(),
+      domain: this.authentication.value.domain,
+      email: this.authentication.value.email,
+      token: this.authentication.value.token,
       strategy: this.authentication.value.strategy,
       jql: this.jql.value.trim(),
       keyAction: this.getKeyAction(),
@@ -101,9 +61,6 @@ class QueryActionPropertyInspector extends PollingActionInspector<JQLQuerySettin
       badgePosition: this.icon.value.badgePosition,
       badgeColor: this.icon.value.badgeColor,
     };
-
-    // Clear out the status indicator until we get an updated response.
-    this.status.innerText = '';
 
     this.setSettings(settings);
     this.setGlobalSettings({
