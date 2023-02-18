@@ -1,0 +1,28 @@
+<div type="group" class="sdpi-item">
+  <div class="sdpi-heading">Authentication</div>
+  <div class="sdpi-item">
+    <div class="sdpi-item-label">Domain</div>
+    <input class="sdpi-item-value" type="text" id="domain" placeholder="your-domain.atlassian.net" pattern="([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}" global>
+  </div>
+
+  <div class="sdpi-item">
+    <div class="sdpi-item-label">Type</div>
+    <select class="sdpi-item-value" id="token-type">
+      <option value="APIToken" selected>Jira Cloud</option>
+      <option value="PAT">Jira Server</option>
+    </select>
+  </div>
+
+  <div class="sdpi-item">
+    <div class="sdpi-item-label">Email</div>
+    <input class="sdpi-item-value" type="email" id="email" global>
+  </div>
+
+  <div class="sdpi-item">
+    <div class="sdpi-item-label">
+      <a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank" x-token-type="APIToken">API Token</a>
+      <a href="https://confluence.atlassian.com/enterprise/using-personal-access-tokens-1026032365.html" target="_blank" x-token-type="PAT" hidden>Access Token</a>
+    </div>
+    <input class="sdpi-item-value" type="password" id="token" pattern="\w{24,}" global>
+  </div>
+</div>

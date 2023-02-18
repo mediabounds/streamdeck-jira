@@ -8,10 +8,10 @@ import { ActionPollingDebugInfo } from "../actions/PollingAction";
  * Property inspector for the Query action.
  */
 class QueryActionPropertyInspector extends PollingActionInspector<JQLQuerySettings> {
-  private domain = document.getElementById('domain') as HTMLInputElement;
-  private email = document.getElementById('email') as HTMLInputElement;
-  private token = document.getElementById('token') as HTMLInputElement;
-  private tokenType = document.getElementById('token-type') as HTMLSelectElement;
+  private domain: HTMLInputElement;
+  private email: HTMLInputElement;
+  private token: HTMLInputElement;
+  private tokenType: HTMLSelectElement;
   private jql = document.getElementById('jql') as HTMLTextAreaElement;
   private status = document.getElementById('status-display');
   private keyAction = document.getElementById('key-action') as HTMLSelectElement;
@@ -27,6 +27,12 @@ class QueryActionPropertyInspector extends PollingActionInspector<JQLQuerySettin
    */
   handleDidConnectToSocket(): void {
     super.handleDidConnectToSocket();
+
+    this.domain = document.getElementById('domain') as HTMLInputElement;
+    this.email = document.getElementById('email') as HTMLInputElement;
+    this.token = document.getElementById('token') as HTMLInputElement;
+    this.tokenType = document.getElementById('token-type') as HTMLSelectElement;
+
     const fields = document.querySelectorAll('input, textarea, select');
     fields.forEach(field => {
       field.addEventListener('change', (e) => this.handleFieldUpdated(e));
