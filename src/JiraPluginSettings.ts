@@ -15,7 +15,7 @@ export type JQLQueryKeyAction = 'Refresh' | 'ViewFilter' | ViewInBrowserAction;
 /**
  * Settings used by the JQL Query action.
  */
-export interface JQLQuerySettings extends BadgeSettings, PollingSettings, DefaultPluginSettings {
+export interface JQLQuerySettings extends IconSettings, PollingSettings, DefaultPluginSettings {
   /**
    * The JQL to use to query for issues from Jira.
    */
@@ -25,11 +25,6 @@ export interface JQLQuerySettings extends BadgeSettings, PollingSettings, Defaul
    * The action to perform when the key is pressed.
    */
   keyAction: JQLQueryKeyAction;
-
-  /**
-   * Base64-encoded data of a custom image to use for the action.
-   */
-  customImage?: string;
 }
 
 /**
@@ -62,6 +57,13 @@ export enum BadgeType {
    * No badge.
    */
   Hidden = 'hidden'
+}
+
+export interface IconSettings extends BadgeSettings {
+  /**
+   * Base64-encoded data of a custom image to use for the action.
+   */
+  customImage?: string;
 }
 
 /**
