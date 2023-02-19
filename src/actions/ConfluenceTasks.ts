@@ -38,8 +38,8 @@ class ConfluenceTasks extends BaseJiraAction<CountableResponse<InlineTasksRespon
   handleKeyDown(event: KeyDownEvent<ConfluenceTasksSettings>): void {
     super.handleKeyDown(event);
 
-    const {domain} = event.settings;
-    this.openURL(`https://${domain}/wiki/plugins/inlinetasks/mytasks.action`);
+    const apiContext = event.settings.strategy === 'PAT' ? '' : '/wiki';
+    this.openURL(`https://${event.settings.domain}${apiContext}/plugins/inlinetasks/mytasks.action`);
   }
 
   /**

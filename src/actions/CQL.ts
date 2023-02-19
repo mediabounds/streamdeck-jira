@@ -32,8 +32,16 @@ class CQL extends BaseJiraAction<CountableResponse<CQLResponse>, CQLActionSettin
   handleKeyDown(event: KeyDownEvent<CQLActionSettings>): void {
     super.handleKeyDown(event);
 
-    const {domain} = event.settings;
-    this.openURL(`https://${domain}/wiki/plugins/inlinetasks/mytasks.action`);
+    if (this.getPollingClient()?.getLastResponse().count === 1) {
+      const content = this.getPollingClient().getLastResponse().data?.results[0]?.content;
+      if (content && content.url) {
+        this.openURL(content.url);
+        return;
+      }
+    }
+    
+    const apiContext = event.settings.strategy === 'PAT' ? '' : '/wiki';
+    this.openURL(`https://${event.settings.domain}${apiContext}/search?cql=${encodeURIComponent(event.settings.cql)}`);
   }
 
   /**
