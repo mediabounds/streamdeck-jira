@@ -14,7 +14,11 @@ export default abstract class PollingActionInspector<TSettings> extends DefaultP
    */
   constructor(args: {plugin: Plugin<unknown, unknown>}) {
     super(args);
-    this.status.onclick = () => alert(this.status.value.statusMessage);
+    this.status.onclick = () => {
+      if (!this.status.value.success) {
+        alert(this.status.value.statusMessage)
+      }
+    };
     this.status.onauxclick = () => {
       const info = this.status.value;
       if (!info.responseBody) {

@@ -27,7 +27,7 @@ export interface JQLQuerySettings extends IconSettings, PollingSettings, Default
   keyAction: JQLQueryKeyAction;
 }
 
-export interface CQLActionSettings extends CommonSettings {
+export interface ConfluenceSearchSettings extends CommonSettings {
   cql: string;
 }
 

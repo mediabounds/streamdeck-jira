@@ -4,7 +4,7 @@ import { BadgePosition } from "../Icon";
 import PollingActionInspector from "../PollingActionInspector";
 import { AuthenticationComponent, IconComponent } from "./Components";
 
-class ConfluenceActionPropertyInspector extends PollingActionInspector<ConfluenceTasksSettings> {
+class ConfluenceTasksActionPropertyInspector extends PollingActionInspector<ConfluenceTasksSettings> {
   private authentication = document.getElementById('auth') as AuthenticationComponent;
   private icon = document.getElementById('icon') as IconComponent;
   private fromDate = document.getElementById('from-date') as HTMLInputElement;
@@ -81,5 +81,5 @@ class ConfluenceActionPropertyInspector extends PollingActionInspector<Confluenc
 
 }
 
-const inspector = new ConfluenceActionPropertyInspector({ plugin });
+const inspector = new ConfluenceTasksActionPropertyInspector({ plugin });
 inspector.run();

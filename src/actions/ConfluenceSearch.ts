@@ -1,6 +1,6 @@
 import { KeyDownEvent } from "@fnando/streamdeck";
 import { JiraConnection } from "../JiraConnection";
-import { CQLActionSettings } from "../JiraPluginSettings";
+import { ConfluenceSearchSettings } from "../JiraPluginSettings";
 import BaseJiraAction, { CountableResponse } from "./BaseJiraAction";
 import { ActionPollingContext } from "./PollingAction";
 
@@ -22,14 +22,11 @@ interface Content {
   url: string;
 }
 
-/**
- * Periodically polls Jira to get an updated list of issues matching the configured JQL.
- */
-class CQL extends BaseJiraAction<CountableResponse<CQLResponse>, CQLActionSettings> {
+class ConfluenceSearch extends BaseJiraAction<CountableResponse<CQLResponse>, ConfluenceSearchSettings> {
   /**
    * {@inheritDoc}
    */
-  handleKeyDown(event: KeyDownEvent<CQLActionSettings>): void {
+  handleKeyDown(event: KeyDownEvent<ConfluenceSearchSettings>): void {
     super.handleKeyDown(event);
 
     if (this.getPollingClient()?.getLastResponse().count === 1) {
@@ -47,7 +44,7 @@ class CQL extends BaseJiraAction<CountableResponse<CQLResponse>, CQLActionSettin
   /**
    * {@inheritDoc}
    */
-  protected async getResponse(context: ActionPollingContext<CQLActionSettings>): Promise<CountableResponse<CQLResponse>> {
+  protected async getResponse(context: ActionPollingContext<ConfluenceSearchSettings>): Promise<CountableResponse<CQLResponse>> {
     const {domain, cql} = context.settings;
 
     if (!domain || !cql) {
@@ -76,12 +73,12 @@ class CQL extends BaseJiraAction<CountableResponse<CQLResponse>, CQLActionSettin
 
 }
 
-const confluenceQuery = new CQL({
+const confluenceQuery = new ConfluenceSearch({
   name: 'Confluence Search',
   hasMultiActionSupport: false,
   tooltip: 'Displays a badge with the number of search results for a given CQL query.',
   states: [{ image: "Confluence" }],
-  inspectorName: 'CQL',
+  inspectorName: 'ConfluenceSearch',
 });
 
 export default confluenceQuery;

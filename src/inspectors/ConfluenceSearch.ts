@@ -1,10 +1,10 @@
 import plugin from "../plugin";
-import { BadgeType, CQLActionSettings } from "../JiraPluginSettings";
+import { BadgeType, ConfluenceSearchSettings } from "../JiraPluginSettings";
 import { BadgePosition } from "../Icon";
 import PollingActionInspector from "../PollingActionInspector";
 import { AuthenticationComponent, IconComponent } from "./Components";
 
-class CQLActionPropertyInspector extends PollingActionInspector<CQLActionSettings> {
+class ConfluenceSearchActionPropertyInspector extends PollingActionInspector<ConfluenceSearchSettings> {
   private cql = document.getElementById('cql') as HTMLTextAreaElement;
   private authentication = document.getElementById('auth') as AuthenticationComponent;
   private icon = document.getElementById('icon') as IconComponent;
@@ -32,7 +32,7 @@ class CQLActionPropertyInspector extends PollingActionInspector<CQLActionSetting
    * "Submits" the form in the property inspector and saves all values to settings.
    */
   protected saveSettings(): void {
-    const settings: CQLActionSettings = {
+    const settings: ConfluenceSearchSettings = {
       cql: this.cql.value,
       pollingDelay: 120,
       ...this.authentication.value,
@@ -52,7 +52,7 @@ class CQLActionPropertyInspector extends PollingActionInspector<CQLActionSetting
    * Retrieves the default settings for a Query action.
    * @returns The default settings for a Query action.
    */
-  protected getDefaultSettings(): CQLActionSettings {
+  protected getDefaultSettings(): ConfluenceSearchSettings {
     return {
       domain: this.globalSettings.domain ?? '',
       email: this.globalSettings.email ?? '',
@@ -67,5 +67,5 @@ class CQLActionPropertyInspector extends PollingActionInspector<CQLActionSetting
 
 }
 
-const inspector = new CQLActionPropertyInspector({ plugin });
+const inspector = new ConfluenceSearchActionPropertyInspector({ plugin });
 inspector.run();
