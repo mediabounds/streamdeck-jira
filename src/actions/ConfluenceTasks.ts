@@ -76,7 +76,7 @@ const inlineTasks = new ConfluenceTasks({
   name: 'Confluence Tasks',
   hasMultiActionSupport: false,
   tooltip: 'Displays a badge with the number of incomplete inline tasks in Confluence.',
-  states: [{ image: "Jira" }],
+  states: [{ image: "Confluence" }],
   inspectorName: 'Confluence',
 });
 
