@@ -12,6 +12,10 @@ input[type="color"] {
   padding: 0 !important;
 }
 
+::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
 .sdpi-item-value + .sdpi-item-value {
   min-width: auto;
 }

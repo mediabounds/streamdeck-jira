@@ -28,7 +28,9 @@ export interface JQLQuerySettings extends IconSettings, PollingSettings, Default
 }
 
 export interface ConfluenceTasksSettings extends IconSettings, PollingSettings, DefaultPluginSettings {
-  
+  // Formatted as yyyy-mm-dd
+  dueDateFrom?: string;
+  dueDateTo?: string;
 }
 
 export interface CommonSettings extends IconSettings, PollingSettings, DefaultPluginSettings {}

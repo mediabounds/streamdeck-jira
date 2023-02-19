@@ -14,6 +14,11 @@ interface InlineTasksResponse {
   size: number;
 }
 
+interface InlineTaskFilter {
+  duedateFrom?: number; // milliseconds
+  duedateTo?: number; // milliseconds
+}
+
 interface InlineTask {
   id: number;
   body: string;
@@ -41,7 +46,7 @@ class ConfluenceTasks extends BaseJiraAction<CountableResponse<InlineTasksRespon
    * {@inheritDoc}
    */
   protected async getResponse(context: ActionPollingContext<ConfluenceTasksSettings>): Promise<CountableResponse<InlineTasksResponse>> {
-    const {domain} = context.settings;
+    const {domain, dueDateFrom, dueDateTo} = context.settings;
 
     if (!domain) {
       return {
@@ -56,11 +61,20 @@ class ConfluenceTasks extends BaseJiraAction<CountableResponse<InlineTasksRespon
       endpoint: `${apiContext}/rest/api/user/current`
     });
 
+    const filter: InlineTaskFilter = {};
+    if (dueDateFrom) {
+      filter.duedateFrom = Date.parse(dueDateFrom);
+    }
+    if (dueDateTo) {
+      filter.duedateTo = Date.parse(dueDateTo);
+    }
+
     const response = await client.request<InlineTasksResponse>({
       endpoint: `${apiContext}/rest/api/inlinetasks/search`,
       query: {
         assignee: currentUserResponse.body.accountId,
         status: 'incomplete',
+        ...filter,
       },
     });
 

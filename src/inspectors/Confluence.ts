@@ -7,12 +7,17 @@ import { AuthenticationComponent, IconComponent } from "./Components";
 class ConfluenceActionPropertyInspector extends PollingActionInspector<ConfluenceTasksSettings> {
   private authentication = document.getElementById('auth') as AuthenticationComponent;
   private icon = document.getElementById('icon') as IconComponent;
+  private fromDate = document.getElementById('from-date') as HTMLInputElement;
+  private toDate = document.getElementById('to-date') as HTMLInputElement;
 
   /**
    * {@inheritDoc}
    */
   protected updateForm(): void {
     const settings = Object.assign({}, this.getDefaultSettings(), this.settings);
+
+    this.fromDate.value = this.formatDate(settings.dueDateFrom);
+    this.toDate.value = this.formatDate(settings.dueDateTo);
 
     this.authentication.value = settings;
     this.icon.value = settings;
@@ -30,15 +35,11 @@ class ConfluenceActionPropertyInspector extends PollingActionInspector<Confluenc
    */
   protected saveSettings(): void {
     const settings: ConfluenceTasksSettings = {
-      domain: this.authentication.value.domain,
-      email: this.authentication.value.email,
-      token: this.authentication.value.token,
-      strategy: this.authentication.value.strategy,
-      pollingDelay: this.settings.pollingDelay,
-      badgeType: this.icon.value.badgeType,
-      customImage: this.icon.value.customImage,
-      badgePosition: this.icon.value.badgePosition,
-      badgeColor: this.icon.value.badgeColor,
+      dueDateFrom: this.formatDate(this.fromDate.value),
+      dueDateTo: this.formatDate(this.toDate.value),
+      pollingDelay: 120,
+      ...this.authentication.value,
+      ...this.icon.value,
     };
 
     this.setSettings(settings);
@@ -64,6 +65,18 @@ class ConfluenceActionPropertyInspector extends PollingActionInspector<Confluenc
       badgeType: BadgeType.Number,
       badgePosition: BadgePosition.TopRight,
     };
+  }
+
+  private formatDate(date?: string|Date): string|null {
+    if (!date) {
+      return null;
+    }
+
+    if (!(date instanceof Date)) {
+      date = new Date(date);
+    }
+
+    return date.toISOString().split('T')[0];
   }
 
 }
