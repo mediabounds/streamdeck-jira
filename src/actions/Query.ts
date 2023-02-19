@@ -1,8 +1,8 @@
-import { DidReceiveSettingsEvent, KeyDownEvent } from "@fnando/streamdeck";
+import { KeyDownEvent } from "@fnando/streamdeck";
 import { JiraConnection } from "../JiraConnection";
 import { JQLQuerySettings } from "../JiraPluginSettings";
-import { PollingErrorEvent, PollingResponseEvent } from "../PollingClient";
-import PollingAction, { ActionPollingContext } from "./PollingAction";
+import BaseJiraAction, { CountableResponse } from "./BaseJiraAction";
+import { ActionPollingContext } from "./PollingAction";
 
 /**
  * The expected response structure from Jira when executing JQL.
@@ -24,7 +24,7 @@ interface Issue {
 /**
  * Periodically polls Jira to get an updated list of issues matching the configured JQL.
  */
-class Query extends PollingAction<SearchResponse, JQLQuerySettings> {
+class Query extends BaseJiraAction<CountableResponse<SearchResponse>, JQLQuerySettings> {
   /**
    * {@inheritDoc}
    */
@@ -39,7 +39,7 @@ class Query extends PollingAction<SearchResponse, JQLQuerySettings> {
         this.openURL(`https://${event.settings.domain}/issues/?jql=${encodeURIComponent(event.settings.jql)}`);
         break;
       default: {
-        const issues = this.getPollingClient()?.getLastResponse()?.issues ?? [];
+        const issues = this.getPollingClient()?.getLastResponse()?.data?.issues ?? [];
 
         issues
           .slice(0, event.settings.keyAction.limit ?? 5)
@@ -54,23 +54,12 @@ class Query extends PollingAction<SearchResponse, JQLQuerySettings> {
   /**
    * {@inheritDoc}
    */
-  handleDidReceiveSettings(event: DidReceiveSettingsEvent<JQLQuerySettings>): void {
-    this.setBadge({
-      value: `${this.getPollingClient()?.getLastResponse()?.total ?? 0}`,
-    }, event.settings);
-    super.handleDidReceiveSettings(event);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  protected async getResponse(context: ActionPollingContext<JQLQuerySettings>): Promise<SearchResponse> {
+  protected async getResponse(context: ActionPollingContext<JQLQuerySettings>): Promise<CountableResponse<SearchResponse>> {
     const {domain, jql} = context.settings;
 
     if (!domain || !jql) {
       return {
-        issues: [],
-        total: 0,
+        count: 0
       };
     }
 
@@ -82,33 +71,10 @@ class Query extends PollingAction<SearchResponse, JQLQuerySettings> {
       },
     });
 
-    return response.body;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  handleDidReceivePollingResponse(event: PollingResponseEvent<ActionPollingContext<JQLQuerySettings>, SearchResponse>): void {
-    super.handleDidReceivePollingResponse(event);
-    if (!event.didRecoverFromError && event.response.total === event.client.getLastResponse()?.total) {
-      return;
+    return {
+      count: response.body.total,
+      data: response.body,
     }
-
-    this.setBadge({
-      value: `${event.response.total ?? 0}`,
-    }, event.context.settings);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  handleDidReceivePollingError(event: PollingErrorEvent<ActionPollingContext<JQLQuerySettings>, SearchResponse>): void {
-    super.handleDidReceivePollingError(event);
-    this.setBadge({
-      value: '!',
-      color: 'yellow',
-      textColor: 'black',
-    }, event.context.settings);
   }
 
   /**

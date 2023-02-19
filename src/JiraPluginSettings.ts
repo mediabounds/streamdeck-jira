@@ -31,6 +31,8 @@ export interface ConfluenceTasksSettings extends IconSettings, PollingSettings, 
   
 }
 
+export interface CommonSettings extends IconSettings, PollingSettings, DefaultPluginSettings {}
+
 /**
  * Settings used by actions that periodically poll for updated data.
  */

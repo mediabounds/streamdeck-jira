@@ -1,8 +1,8 @@
-import { DidReceiveSettingsEvent, KeyDownEvent } from "@fnando/streamdeck";
+import { KeyDownEvent } from "@fnando/streamdeck";
 import { JiraConnection } from "../JiraConnection";
 import { ConfluenceTasksSettings } from "../JiraPluginSettings";
-import { PollingErrorEvent, PollingResponseEvent } from "../PollingClient";
-import PollingAction, { ActionPollingContext } from "./PollingAction";
+import BaseJiraAction, { CountableResponse } from "./BaseJiraAction";
+import { ActionPollingContext } from "./PollingAction";
 
 /**
  * The expected response structure from Jira when querying inline tasks.
@@ -14,11 +14,6 @@ interface InlineTasksResponse {
   size: number;
 }
 
-/**
- * An individual issue from Jira.
- * 
- * An issue, of course, has way more fields, but we only care about the key.
- */
 interface InlineTask {
   id: number;
   body: string;
@@ -31,7 +26,7 @@ interface ConfluenceUser {
 /**
  * Periodically polls Jira to get an updated list of issues matching the configured JQL.
  */
-class ConfluenceTasks extends PollingAction<InlineTasksResponse, ConfluenceTasksSettings> {
+class ConfluenceTasks extends BaseJiraAction<CountableResponse<InlineTasksResponse>, ConfluenceTasksSettings> {
   /**
    * {@inheritDoc}
    */
@@ -45,69 +40,34 @@ class ConfluenceTasks extends PollingAction<InlineTasksResponse, ConfluenceTasks
   /**
    * {@inheritDoc}
    */
-  handleDidReceiveSettings(event: DidReceiveSettingsEvent<ConfluenceTasksSettings>): void {
-    this.setBadge({
-      value: `${this.getPollingClient()?.getLastResponse()?.size ?? 0}`,
-    }, event.settings);
-    super.handleDidReceiveSettings(event);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  protected async getResponse(context: ActionPollingContext<ConfluenceTasksSettings>): Promise<InlineTasksResponse> {
+  protected async getResponse(context: ActionPollingContext<ConfluenceTasksSettings>): Promise<CountableResponse<InlineTasksResponse>> {
     const {domain} = context.settings;
 
     if (!domain) {
       return {
-        results: [],
-        start: 0,
-        limit: 20,
-        size: 0,
+        count: 0
       };
     }
 
     const client = JiraConnection.getClient(context.settings);
 
-    const currentUser = await client.request<ConfluenceUser>({
-      endpoint: 'wiki/rest/api/user/current'
+    const apiContext = context.settings.strategy === 'PAT' ? '' : 'wiki';
+    const currentUserResponse = await client.request<ConfluenceUser>({
+      endpoint: `${apiContext}/rest/api/user/current`
     });
 
     const response = await client.request<InlineTasksResponse>({
-      endpoint: 'wiki/rest/api/inlinetasks/search',
+      endpoint: `${apiContext}/rest/api/inlinetasks/search`,
       query: {
-        assignee: currentUser.body.accountId,
+        assignee: currentUserResponse.body.accountId,
         status: 'incomplete',
       },
     });
 
-    return response.body;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  handleDidReceivePollingResponse(event: PollingResponseEvent<ActionPollingContext<ConfluenceTasksSettings>, InlineTasksResponse>): void {
-    super.handleDidReceivePollingResponse(event);
-    if (!event.didRecoverFromError && event.response.size === event.client.getLastResponse()?.size) {
-      return;
-    }
-
-    this.setBadge({
-      value: `${event.response.size ?? 0}`,
-    }, event.context.settings);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  handleDidReceivePollingError(event: PollingErrorEvent<ActionPollingContext<ConfluenceTasksSettings>, InlineTasksResponse>): void {
-    super.handleDidReceivePollingError(event);
-    this.setBadge({
-      value: '!',
-      color: 'yellow',
-      textColor: 'black',
-    }, event.context.settings);
+    return {
+      count: response.body.size,
+      data: response.body,
+    };
   }
 
 }
