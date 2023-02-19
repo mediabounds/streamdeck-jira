@@ -1,6 +1,9 @@
 import { DidReceiveGlobalSettingsEvent, DidReceiveSettingsEvent, Inspector, Plugin } from "@fnando/streamdeck";
 import { DefaultPluginSettings } from "./JiraPluginSettings";
 
+/**
+ * Base property inspector for all actions that periodically poll Jira/Confluence.
+ */
 export default abstract class DefaultPropertyInspector<TSettings = DefaultPluginSettings> extends Inspector<TSettings, DefaultPluginSettings> {
   protected settings: TSettings;
   protected globalSettings: DefaultPluginSettings;
@@ -79,9 +82,19 @@ export default abstract class DefaultPropertyInspector<TSettings = DefaultPlugin
    */
   protected abstract handleFieldUpdated(event: Event): void;
 
+  /**
+   * Invoked when the form needs to be updated based on updated settings.
+   */
   protected updateForm(): void {
     // Do nothing.
   }
 
+  /**
+   * Retrieves the default settings for the action.
+   * 
+   * When a new action is created, these will become the initial settings.
+   *
+   * @returns The default settings.
+   */
   protected abstract getDefaultSettings(): TSettings;
 }

@@ -4,6 +4,9 @@ import { BadgePosition } from "../Icon";
 import PollingActionInspector from "../PollingActionInspector";
 import { AuthenticationComponent, IconComponent } from "./Components";
 
+/**
+ * Property inspector for the Confluence search (CQL) action.
+ */
 class ConfluenceSearchActionPropertyInspector extends PollingActionInspector<ConfluenceSearchSettings> {
   private cql = document.getElementById('cql') as HTMLTextAreaElement;
   private authentication = document.getElementById('auth') as AuthenticationComponent;
@@ -49,8 +52,7 @@ class ConfluenceSearchActionPropertyInspector extends PollingActionInspector<Con
   }
 
   /**
-   * Retrieves the default settings for a Query action.
-   * @returns The default settings for a Query action.
+   * {@inheritdoc}
    */
   protected getDefaultSettings(): ConfluenceSearchSettings {
     return {

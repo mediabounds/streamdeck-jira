@@ -5,31 +5,77 @@ import BaseJiraAction, { CountableResponse } from "./BaseJiraAction";
 import { ActionPollingContext } from "./PollingAction";
 
 /**
- * The expected response structure from Jira when querying inline tasks.
+ * Query parameters for filtering inline tasks.
+ */
+interface InlineTaskFilter {
+  /**
+   * Account ID of a user to whom a task is assigned.
+   */
+  assignee: string;
+  /**
+   * The status of the task (checked/unchecked).
+   */
+  status: 'complete' | 'incomplete';
+  /**
+   * The number of results to be returned (default is 20).
+   */
+  limit?: number;
+  /**
+   * Start of date range based on due dates (inclusive); in milliseconds since epoch.
+   */
+  duedateFrom?: number;
+  /**
+   * End of date range based on due dates (inclusive); in milliseconds since epoch.
+   */
+  duedateTo?: number;
+}
+
+/**
+ * The API response when querying inline tasks.
+ * 
+ * The API includes other properties, but we are only structuring the ones we care about.
  */
 interface InlineTasksResponse {
+  /**
+   * The tasks matching the query.
+   */
   results: InlineTask[];
-  start: number;
-  limit: number;
+  /**
+   * The total number of tasks matching the query.
+   */
   size: number;
 }
 
-interface InlineTaskFilter {
-  duedateFrom?: number; // milliseconds
-  duedateTo?: number; // milliseconds
-}
-
+/**
+ * An individual inline task.
+ */
 interface InlineTask {
+  /**
+   * The ID of the task.
+   */
   id: number;
+  /**
+   * The contents of the task.
+   */
   body: string;
+  /**
+   * The due date of the task (in milliseconds since epoch).
+   */
+  dueDate?: number;
 }
 
+/**
+ * A Confluence user.
+ */
 interface ConfluenceUser {
+  /**
+   * The account ID of the user, which uniquely identifies the user across all Atlassian products.
+   */
   accountId: string;
 }
 
 /**
- * Periodically polls Jira to get an updated list of issues matching the configured JQL.
+ * Periodically polls Confluence to get the number of inline tasks assigned to the current user.
  */
 class ConfluenceTasks extends BaseJiraAction<CountableResponse<InlineTasksResponse>, ConfluenceTasksSettings> {
   /**
@@ -61,7 +107,12 @@ class ConfluenceTasks extends BaseJiraAction<CountableResponse<InlineTasksRespon
       endpoint: `${apiContext}/rest/api/user/current`
     });
 
-    const filter: InlineTaskFilter = {};
+    const filter: InlineTaskFilter = {
+      assignee: currentUserResponse.body.accountId,
+      status: 'incomplete',
+      limit: 99,
+    };
+
     if (dueDateFrom) {
       filter.duedateFrom = Date.parse(dueDateFrom);
     }
@@ -71,11 +122,7 @@ class ConfluenceTasks extends BaseJiraAction<CountableResponse<InlineTasksRespon
 
     const response = await client.request<InlineTasksResponse>({
       endpoint: `${apiContext}/rest/api/inlinetasks/search`,
-      query: {
-        assignee: currentUserResponse.body.accountId,
-        status: 'incomplete',
-        ...filter,
-      },
+      query: {...filter},
     });
 
     return {
@@ -89,7 +136,7 @@ class ConfluenceTasks extends BaseJiraAction<CountableResponse<InlineTasksRespon
 const inlineTasks = new ConfluenceTasks({
   name: 'Confluence Tasks',
   hasMultiActionSupport: false,
-  tooltip: 'Displays a badge with the number of incomplete inline tasks in Confluence.',
+  tooltip: 'Displays a badge with the number of incomplete inline tasks assigned to you in Confluence.',
   states: [{ image: "ConfluenceTasks" }],
   inspectorName: 'ConfluenceTasks',
 });

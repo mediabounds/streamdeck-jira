@@ -15,7 +15,7 @@ export type JQLQueryKeyAction = 'Refresh' | 'ViewFilter' | ViewInBrowserAction;
 /**
  * Settings used by the JQL Query action.
  */
-export interface JQLQuerySettings extends IconSettings, PollingSettings, DefaultPluginSettings {
+export interface JQLQuerySettings extends CommonSettings {
   /**
    * The JQL to use to query for issues from Jira.
    */
@@ -27,16 +27,34 @@ export interface JQLQuerySettings extends IconSettings, PollingSettings, Default
   keyAction: JQLQueryKeyAction;
 }
 
+/**
+ * Settings used by the Confluence Search action.
+ */
 export interface ConfluenceSearchSettings extends CommonSettings {
+  /**
+   * The CQL to use to query for content from Confluence.
+   * @see https://developer.atlassian.com/cloud/confluence/advanced-searching-using-cql/
+   */
   cql: string;
 }
 
-export interface ConfluenceTasksSettings extends IconSettings, PollingSettings, DefaultPluginSettings {
-  // Formatted as yyyy-mm-dd
+/**
+ * Settings used by the Confluence inline tasks action.
+ */
+export interface ConfluenceTasksSettings extends CommonSettings {
+  /**
+   * Only return inline tasks due on or after this date (formatted as yyyy-mm-dd).
+   */
   dueDateFrom?: string;
+  /**
+   * Only return inline tasks due before this date (formatted as yyyy-mm-dd).
+   */
   dueDateTo?: string;
 }
 
+/**
+ * Common settings used by all actions.
+ */
 export interface CommonSettings extends IconSettings, PollingSettings, DefaultPluginSettings {}
 
 /**

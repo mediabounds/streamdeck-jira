@@ -2,29 +2,58 @@ import { ActionPollingDebugInfo } from "../actions/PollingAction";
 import Icon, { BadgePosition } from "../Icon";
 import { BadgeType, DefaultPluginSettings, IconSettings } from "../JiraPluginSettings";
 
+/**
+ * Base class for reusable components in the Property Inspector.
+ */
 export abstract class PropertyInspectorComponent<T> extends HTMLElement {
+  /**
+   * The file name of the template.
+   */
   abstract get template(): string;
+  /**
+   * The structured value of the information in this component.
+   */
   abstract get value(): T;
+  /**
+   * Sets a new value for the component.
+   * 
+   * Updates the corresponding form fields.
+   */
   abstract set value(newValue: T);
 
+  /**
+   * Invoked when the element has been added to the document.
+   */
   connectedCallback() {
     this.loadTemplate()
       .then(()=> this.onTemplateLoaded())
       .catch(console.error);
   }
 
+  /**
+   * Invoked after the template has been loaded and appended to the document.
+   */
   protected onTemplateLoaded() {
     const fields = this.querySelectorAll('input, textarea, select');
     fields.forEach(field => {
-      field.addEventListener('change', (e) => this.handleFieldUpdated(e));
+      field.addEventListener('change', (e) => this.onFieldUpdated(e));
     });
   }
 
-  protected handleFieldUpdated(event?: Event): void {
+  /**
+   * Invoked when a field within the component changes.
+   * @param event - The change event.
+   */
+  protected onFieldUpdated(event?: Event): void {
     this.dispatchEvent(new Event('change'))
   }
 
-  protected async loadTemplate() {
+  /**
+   * Loads the template specified in `template` and appends to the document.
+   * 
+   * @returns A promise that resolves when the template finishes loading.
+   */
+  protected async loadTemplate(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.onload = (e) => {
@@ -42,16 +71,25 @@ export abstract class PropertyInspectorComponent<T> extends HTMLElement {
   }
 }
 
+/**
+ * Subform for providing authentication credentials for Jira.
+ */
 export class AuthenticationComponent extends PropertyInspectorComponent<DefaultPluginSettings> {
   private domain: HTMLInputElement;
   private email: HTMLInputElement;
   private token: HTMLInputElement;
   private tokenType: HTMLSelectElement;
 
+  /**
+   * {@inheritDoc}
+   */
   get template(): string {
     return 'authentication.component.html';
   }
 
+  /**
+   * {@inheritDoc}
+   */
   get value(): DefaultPluginSettings {
     return {
       domain: this.domain.value
@@ -64,6 +102,9 @@ export class AuthenticationComponent extends PropertyInspectorComponent<DefaultP
     };
   }
 
+  /**
+   * {@inheritDoc}
+   */
   set value(newValue: DefaultPluginSettings) {
     this.domain.value = newValue.domain;
     this.email.value = newValue.email;
@@ -72,6 +113,9 @@ export class AuthenticationComponent extends PropertyInspectorComponent<DefaultP
     this.onValueChanged();
   }
   
+  /**
+   * {@inheritDoc}
+   */
   protected onTemplateLoaded(): void {
     super.onTemplateLoaded();
     this.domain = this.querySelector('#domain');
@@ -80,16 +124,26 @@ export class AuthenticationComponent extends PropertyInspectorComponent<DefaultP
     this.tokenType = this.querySelector('#token-type');
   }
 
-  protected handleFieldUpdated(event?: Event): void {
-    super.handleFieldUpdated(event);
+  /**
+   * {@inheritDoc}
+   */
+  protected onFieldUpdated(event?: Event): void {
+    super.onFieldUpdated(event);
     this.onValueChanged();
   }
 
+  /**
+   * Invoked when the value changes.
+   * Handles updates to the form.
+   */
   private onValueChanged(): void {
     this.querySelectorAll('[x-token-type]').forEach(el => (<HTMLElement>el).hidden = el.getAttribute('x-token-type') != this.tokenType.value);
   }
 }
 
+/**
+ * Subform for customizing the action icon.
+ */
 export class IconComponent extends PropertyInspectorComponent<IconSettings> {
   private customImagePreview: HTMLImageElement;
   private customImageInput: HTMLInputElement;
@@ -98,10 +152,16 @@ export class IconComponent extends PropertyInspectorComponent<IconSettings> {
   private badgeColor: HTMLInputElement;
   private customImageData?: string;
 
+  /**
+   * {@inheritDoc}
+   */
   get template(): string {
     return 'icon.component.html'
   }
 
+  /**
+   * {@inheritDoc}
+   */
   get value(): IconSettings {
     return {
       badgeType: <BadgeType>this.badgeType.value ?? BadgeType.Number,
@@ -111,6 +171,9 @@ export class IconComponent extends PropertyInspectorComponent<IconSettings> {
     };
   }
 
+  /**
+   * {@inheritDoc}
+   */
   set value(newValue: IconSettings) {
     this.badgeType.value = newValue.badgeType;
     this.customImageData = newValue.customImage;
@@ -119,6 +182,9 @@ export class IconComponent extends PropertyInspectorComponent<IconSettings> {
     this.onValueChanged();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   protected onTemplateLoaded(): void {
     super.onTemplateLoaded();
 
@@ -131,16 +197,23 @@ export class IconComponent extends PropertyInspectorComponent<IconSettings> {
     this.customImagePreview.addEventListener('click', () => this.removeCustomImage());
   }
 
-  protected handleFieldUpdated(event?: Event): void {
+  /**
+   * {@inheritDoc}
+   */
+  protected onFieldUpdated(event?: Event): void {
     if (event?.currentTarget == this.customImageInput) {
       this.uploadCustomImage();
     }
     else {
-      super.handleFieldUpdated(event);
+      super.onFieldUpdated(event);
     }
     this.onValueChanged();
   }
 
+  /**
+   * Invoked when the value changes.
+   * Handles updates to the form.
+   */
   private onValueChanged(): void {
     this.customImagePreview.src = this.customImageData ?? '';
 
@@ -189,23 +262,35 @@ export class IconComponent extends PropertyInspectorComponent<IconSettings> {
    */
   private setCustomImage(data?: string) {
     this.customImageData = data;
-    this.handleFieldUpdated();
+    this.onFieldUpdated();
   }
 
 }
 
+/**
+ * Component for displaying the current status (i.e. success/warning).
+ */
 export class StatusComponent extends PropertyInspectorComponent<ActionPollingDebugInfo> {
   private currentStatus?: ActionPollingDebugInfo;
   private status = document.getElementById('status-display');
 
+  /**
+   * {@inheritDoc}
+   */
   get template(): string {
     return 'status.component.html';
   }
 
+  /**
+   * {@inheritDoc}
+   */
   get value(): ActionPollingDebugInfo {
     return this.currentStatus;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   set value(newValue: ActionPollingDebugInfo) {
     this.currentStatus = newValue;
 
@@ -219,10 +304,16 @@ export class StatusComponent extends PropertyInspectorComponent<ActionPollingDeb
     this.status.innerHTML = '<span class="warning">⚠️</span> Something is not right';
   }
 
+  /**
+   * Clears the status display.
+   */
   public clear(): void {
     this.status.innerText = '';
   }
 
+  /**
+   * {@inheritDoc}
+   */
   protected onTemplateLoaded(): void {
     super.onTemplateLoaded();
     this.status = this.querySelector('#status-display');

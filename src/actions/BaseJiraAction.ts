@@ -4,11 +4,25 @@ import { IconSettings, BadgeType, CommonSettings } from "../JiraPluginSettings";
 import { PollingErrorEvent, PollingResponseEvent } from "../PollingClient";
 import PollingAction, { ActionPollingContext } from "./PollingAction";
 
+/**
+ * A generic API response that has a countable number of results.
+ */
 export interface CountableResponse<T> {
+  /**
+   * The original API response.
+   */
   data?: T;
+  /**
+   * The "count" resolved from the API response (i.e. the number of issues matching a query).
+   *
+   * This is used for populating the badge on the icon.
+   */
   count: number;
 }
 
+/**
+ * Base class for all actions that periodically poll data from Jira/Confluence.
+ */
 export default abstract class BaseJiraAction<ResponseType extends CountableResponse<unknown>, SettingsType extends CommonSettings> extends PollingAction<ResponseType, SettingsType> {
   /**
    * {@inheritDoc}

@@ -4,6 +4,9 @@ import { BadgePosition } from "../Icon";
 import PollingActionInspector from "../PollingActionInspector";
 import { AuthenticationComponent, IconComponent } from "./Components";
 
+/**
+ * Property inspector for querying inline Confluence tasks.
+ */
 class ConfluenceTasksActionPropertyInspector extends PollingActionInspector<ConfluenceTasksSettings> {
   private authentication = document.getElementById('auth') as AuthenticationComponent;
   private icon = document.getElementById('icon') as IconComponent;
@@ -52,8 +55,7 @@ class ConfluenceTasksActionPropertyInspector extends PollingActionInspector<Conf
   }
 
   /**
-   * Retrieves the default settings for a Query action.
-   * @returns The default settings for a Query action.
+   * {@inheritdoc}
    */
   protected getDefaultSettings(): ConfluenceTasksSettings {
     return {
@@ -67,6 +69,12 @@ class ConfluenceTasksActionPropertyInspector extends PollingActionInspector<Conf
     };
   }
 
+  /**
+   * Formats a string/date as yyyy-mm-dd.
+   * 
+   * @param date - Either a date object or a string representing a date.
+   * @returns A date formatted as yyyy-mm-dd.
+   */
   private formatDate(date?: string|Date): string|null {
     if (!date) {
       return null;

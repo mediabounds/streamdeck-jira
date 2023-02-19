@@ -4,24 +4,65 @@ import { ConfluenceSearchSettings } from "../JiraPluginSettings";
 import BaseJiraAction, { CountableResponse } from "./BaseJiraAction";
 import { ActionPollingContext } from "./PollingAction";
 
+/**
+ * The response to the search query.
+ */
 interface CQLResponse {
+  /**
+   * The current page of results matching the query.
+   */
   results: SearchResult[];
+  /**
+   * The total number of matching results.
+   */
   totalSize: number;
 }
 
+/**
+ * A Confluence search result.
+ */
 interface SearchResult {
+  /**
+   * The matching content object.
+   */
   content: Content;
 }
 
+/**
+ * Content in Confluence.
+ */
 interface Content {
+  /**
+   * Unique identifier for the Confluence content.
+   */
   id: string;
-  type: string;
+  /**
+   * The type of content.
+   */
+  type: 'page' | 'blogpost' | 'attachment' | 'content';
+  /**
+   * The status of the content.
+   */
   status: string;
+  /**
+   * The title of the content.
+   */
   title: string;
+  /**
+   * Details about the Space containing the content.
+   */
   space: unknown;
+  /**
+   * URL for viewing the content.
+   */
   url: string;
 }
 
+/**
+ * Periodically search Confluence for content matching the CQL (Confluence QUery Language) query.
+ * 
+ * @see https://developer.atlassian.com/cloud/confluence/advanced-searching-using-cql/
+ */
 class ConfluenceSearch extends BaseJiraAction<CountableResponse<CQLResponse>, ConfluenceSearchSettings> {
   /**
    * {@inheritDoc}

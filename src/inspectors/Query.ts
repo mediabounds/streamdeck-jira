@@ -49,17 +49,11 @@ class QueryActionPropertyInspector extends PollingActionInspector<JQLQuerySettin
    */
   protected saveSettings(): void {
     const settings: JQLQuerySettings = {
-      domain: this.authentication.value.domain,
-      email: this.authentication.value.email,
-      token: this.authentication.value.token,
-      strategy: this.authentication.value.strategy,
       jql: this.jql.value.trim(),
       keyAction: this.getKeyAction(),
-      pollingDelay: this.settings.pollingDelay,
-      badgeType: this.icon.value.badgeType,
-      customImage: this.icon.value.customImage,
-      badgePosition: this.icon.value.badgePosition,
-      badgeColor: this.icon.value.badgeColor,
+      pollingDelay: 120,
+      ...this.authentication.value,
+      ...this.icon.value,
     };
 
     this.setSettings(settings);
@@ -72,8 +66,7 @@ class QueryActionPropertyInspector extends PollingActionInspector<JQLQuerySettin
   }
 
   /**
-   * Retrieves the default settings for a Query action.
-   * @returns The default settings for a Query action.
+   * {@inheritdoc}
    */
   protected getDefaultSettings(): JQLQuerySettings {
     return {
