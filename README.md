@@ -1,11 +1,15 @@
 # Stream Deck Jira Plugin
 ![Jira on Stream Deck](src/previews/1-preview.png)
-A Stream Deck plugin for viewing the number of Jira issues matching a JQL query (i.e. the number of new issues or issues waiting for your feedback).
+A Stream Deck plugin for finding issues in Jira or content in Confluence.
+
+For example, add an action showing the number of Jira issues matching a JQL query (i.e. the number of new issues or issues waiting for your feedback).
+Or, add an action showing the number of inline Confluence tasks assigned to you.
 
 ## Features
 * Allows for multiple actions to be defined with different JQL queries
-* Button icon shows the count of issues matching the query
-* The button opens each matching issue in a separate browser window
+* Search Confluence to find content matching a CQL query
+* Display the number of inline tasks assigned to you in Confluence
+* Button icon shows the count of items matching the query
 * Many customization options for how the badge is displayed
 * Allows for custom icons to be set
 * Supports Jira Cloud and Jira Server (8.14 and later)
@@ -19,7 +23,18 @@ https://apps.elgato.com/plugins/com.mediabounds.streamdeck.jira
 2. Go to your download folder and open `com.mediabounds.streamdeck.jira.streamDeckPlugin`.
 
 ## Configuration
-### Global settings
+### JQL Result
+* **JQL** -- a query for filtering a list of issues.
+
+### Confluence Search
+* **CQL** -- a query written in CQL (Confluence Query Language) for finding a list of matching content.
+
+### Confluence Tasks
+* **Due After** -- finds inline tasks due on or after this date.
+* **Due Before** -- finds inline tasks due before this date.
+
+### Common Settings
+#### Authentication
 * **Domain** -- the product URL for your Jira organization (i.e. `organization.atlassian.net`)
 * **Type** -- whether your Jira instance is Jira Cloud or Jira Server
 * **Email** -- the email address for your Atlassian account
@@ -27,10 +42,7 @@ https://apps.elgato.com/plugins/com.mediabounds.streamdeck.jira
   * For Jira Cloud, this can be created at <https://id.atlassian.com/manage-profile/security/api-tokens>
   * For Jira Server, you'll need a [Personal Access Token](https://confluence.atlassian.com/enterprise/using-personal-access-tokens-1026032365.html)
 
-### JQL Result action
-In addition to the **Global settings**, the JQL Result action also requires:
-* **JQL** -- a query for filtering a list of issues.
-
+#### Icon
 Optionally, you may also customize how the icon is badged with the number of issues matching the JQL query.
 
 ## FAQ

@@ -1,11 +1,34 @@
-import { SendToPropertyInspectorEvent } from "@fnando/streamdeck";
+import { SendToPropertyInspectorEvent, Plugin } from "@fnando/streamdeck";
 import { ActionPollingDebugInfo } from "./actions/PollingAction";
 import DefaultPropertyInspector from "./inspector"
+import { StatusComponent } from "./inspectors/Components";
 
 /**
  * Base inspector for an action that periodically polls a target for information.
  */
 export default abstract class PollingActionInspector<TSettings> extends DefaultPropertyInspector<TSettings> {
+  protected readonly status = document.getElementById('status') as StatusComponent;
+
+  /**
+   * {@inheritdoc}
+   */
+  constructor(args: {plugin: Plugin<unknown, unknown>}) {
+    super(args);
+    this.status.onclick = () => {
+      if (!this.status.value.success) {
+        alert(this.status.value.statusMessage)
+      }
+    };
+    this.status.onauxclick = () => {
+      const info = this.status.value;
+      if (!info.responseBody) {
+        return;
+      }
+
+      this.openDebugModal(info);
+    };
+  }
+
   /**
    * {@inheritdoc}
    */
@@ -19,13 +42,27 @@ export default abstract class PollingActionInspector<TSettings> extends DefaultP
   }
 
   /**
+   * {@inheritdoc}
+   */
+  setSettings<T>(payload: T): void {
+    super.setSettings(payload);
+    this.status?.clear();
+  }
+
+  /**
    * Invoked when the action passed debug information.
    * 
    * Useful for helping the user determine a problem with their configuration.
    * 
    * @param info - Debug information was received from the action.
    */
-  protected abstract handleReceiveDebugInfo(info: ActionPollingDebugInfo): void;
+  protected handleReceiveDebugInfo(info: ActionPollingDebugInfo) {
+    if (!this.status) {
+      return;
+    }
+
+    this.status.value = info;
+  }
 
   /**
    * Display debug information in a modal window.

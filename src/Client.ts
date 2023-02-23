@@ -3,7 +3,7 @@
  */
 export interface RequestOptions {
   endpoint: string;
-  query?: Record<string, string>;
+  query?: Record<string, string|number>;
   method?: string;
   mode?: RequestMode;
   cache?: RequestCache;
