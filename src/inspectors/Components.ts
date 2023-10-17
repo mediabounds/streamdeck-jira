@@ -93,8 +93,6 @@ export class AuthenticationComponent extends PropertyInspectorComponent<DefaultP
   get value(): DefaultPluginSettings {
     return {
       domain: this.domain.value
-        .replace(/^https?:\/\//, '')
-        .replace(/\/.*$/, '')
         .trim(),
       email: this.email.value.trim(),
       token: this.token.value.trim(),
