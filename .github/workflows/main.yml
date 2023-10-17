@@ -1,0 +1,56 @@
+name: Package
+
+on:
+  pull_request:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}   # checkout the correct branch name
+          fetch-depth: 0                # fetch the whole repo history
+      - name: Determine version
+        if: ${{github.event_name == 'pull_request'}}
+        id: version
+        uses: codacy/git-version@2.8.0
+      - name: Write version
+        uses: jossef/action-set-json-field@v2.1
+        with:
+          file: src/streamdeck.json
+          field: version
+          value: ${{github.event.release.name || steps.version.outputs.version}}
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Install dependencies
+        run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Package
+        run: npm run package
+      # This step is necessary until https://github.com/fnando/streamdeck/pull/39 is addressed.
+      - name: Add plugin previews
+        run: |
+          cp -r src/previews build/com.shipstefan.streamdeck.jira.sdPlugin
+          cd build
+          zip -r ../release/com.mediabounds.shipstefan.jira.streamDeckPlugin com.shipstefan.streamdeck.jira.sdPlugin/previews/*
+      - name: Save artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: com.shipstefan.streamdeck.jira-${{github.event.release.name || steps.version.outputs.version}}.streamDeckPlugin
+          path: release/com.shipstefan.streamdeck.jira.streamDeckPlugin
+          if-no-files-found: error
+      - name: Publish
+        if: ${{github.event_name == 'release'}}
+        uses: softprops/action-gh-release@v1
+        with:
+          files: release/com.shipstefan.streamdeck.jira.streamDeckPlugin
