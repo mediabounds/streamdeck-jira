@@ -25,7 +25,7 @@ jobs:
           fetch-depth: 0                # fetch the whole repo history
       - name: Determine version
         if: ${{github.event_name == 'pull_request'}}
-        id: ${{inputs.version}}
+        id: version
         uses: codacy/git-version@2.8.0
       - name: Write version
         uses: jossef/action-set-json-field@v2.1
