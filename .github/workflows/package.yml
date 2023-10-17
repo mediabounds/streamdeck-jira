@@ -3,8 +3,10 @@ name: Package
 on:
   pull_request:
   workflow_dispatch:
-    version: 
-      type: string 
+    inputs:
+      version: 
+        label: "Version : "
+        type: string 
   release:
     types: [published]
 
