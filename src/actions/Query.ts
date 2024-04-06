@@ -36,7 +36,7 @@ class Query extends BaseJiraAction<CountableResponse<SearchResponse>, JQLQuerySe
         this.getPollingClient()?.poll();
         break;
       case 'ViewFilter':
-        this.openURL(`https://${event.settings.domain}/issues/?jql=${encodeURIComponent(event.settings.jql)}`);
+        this.openURL(`${this.getUrl(event.settings)}/issues/?jql=${encodeURIComponent(event.settings.jql)}`);
         break;
       default: {
         const issues = this.getPollingClient()?.getLastResponse()?.data?.issues ?? [];
@@ -85,7 +85,7 @@ class Query extends BaseJiraAction<CountableResponse<SearchResponse>, JQLQuerySe
    * @returns The URL to the issue.
    */
   protected getIssueUrl(issue: Issue, settings: JQLQuerySettings): string {
-    return `https://${settings.domain}/browse/${issue.key}`;
+    return `${this.getUrl(settings)}/browse/${issue.key}`;
   }
 
 }

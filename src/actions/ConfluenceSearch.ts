@@ -77,9 +77,12 @@ class ConfluenceSearch extends BaseJiraAction<CountableResponse<CQLResponse>, Co
         return;
       }
     }
-    
-    const apiContext = event.settings.strategy === 'PAT' ? '' : '/wiki';
-    this.openURL(`https://${event.settings.domain}${apiContext}/search?cql=${encodeURIComponent(event.settings.cql)}`);
+
+    if (event.settings.strategy === 'APIToken' && !event.settings.context) {
+      event.settings.context = 'wiki';
+    }
+
+    this.openURL(`${this.getUrl(event.settings)}/search?cql=${encodeURIComponent(event.settings.cql)}`);
   }
 
   /**
@@ -94,12 +97,14 @@ class ConfluenceSearch extends BaseJiraAction<CountableResponse<CQLResponse>, Co
       };
     }
 
+    if (context.settings.strategy === 'APIToken' && !context.settings.context) {
+      context.settings.context = 'wiki';
+    }
+
     const client = JiraConnection.getClient(context.settings);
 
-    const apiContext = context.settings.strategy === 'PAT' ? '' : 'wiki';
-
     const response = await client.request<CQLResponse>({
-      endpoint: `${apiContext}/rest/api/search`,
+      endpoint: `rest/api/search`,
       query: {
         cql: cql,
         limit: '5',

@@ -122,6 +122,14 @@ export interface DefaultPluginSettings {
    * The base product URL of the Jira instance.
    */
   domain: string;
+
+  /**
+   * For Jira Server instances, they may have a custom context path defined.
+   * 
+   * @see https://confluence.atlassian.com/jirakb/change-the-context-path-used-to-access-jira-server-225119408.html
+   */
+  context: string;
+
   /**
    * The email address of the user to use when using the Jira API (i.e. requesting issues).
    */
