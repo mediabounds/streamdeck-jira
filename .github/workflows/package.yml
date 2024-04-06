@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}   # checkout the correct branch name
           fetch-depth: 0                # fetch the whole repo history
@@ -28,7 +28,7 @@ jobs:
           field: version
           value: ${{github.event.release.name || steps.version.outputs.version}}
       - name: Set up Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 18
       - name: Install dependencies
@@ -37,20 +37,14 @@ jobs:
         run: npm run lint
       - name: Package
         run: npm run package
-      # This step is necessary until https://github.com/fnando/streamdeck/pull/39 is addressed.
-      - name: Add plugin previews
-        run: |
-          cp -r src/previews build/com.mediabounds.streamdeck.jira.sdPlugin
-          cd build
-          zip -r ../release/com.mediabounds.streamdeck.jira.streamDeckPlugin com.mediabounds.streamdeck.jira.sdPlugin/previews/*
       - name: Save artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: com.mediabounds.streamdeck.jira-${{github.event.release.name || steps.version.outputs.version}}.streamDeckPlugin
           path: release/com.mediabounds.streamdeck.jira.streamDeckPlugin
           if-no-files-found: error
       - name: Publish
         if: ${{github.event_name == 'release'}}
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: release/com.mediabounds.streamdeck.jira.streamDeckPlugin

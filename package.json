@@ -2,7 +2,7 @@
   "private": true,
   "license": "MIT",
   "dependencies": {
-    "@fnando/streamdeck": "*"
+    "@fnando/streamdeck": "0.1.0-alpha.7"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "5.48.2",
