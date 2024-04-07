@@ -66,6 +66,7 @@ class QueryActionPropertyInspector extends PollingActionInspector<JQLQuerySettin
     this.setSettings(settings);
     this.setGlobalSettings({
       domain: settings.domain,
+      context: settings.context,
       email: settings.email,
       token: settings.token,
       strategy: settings.strategy,
@@ -78,6 +79,7 @@ class QueryActionPropertyInspector extends PollingActionInspector<JQLQuerySettin
   protected getDefaultSettings(): JQLQuerySettings {
     return {
       domain: this.globalSettings.domain ?? '',
+      context: this.globalSettings.context ?? '',
       email: this.globalSettings.email ?? '',
       token: this.globalSettings.token ?? '',
       strategy: this.globalSettings.strategy ?? 'APIToken',

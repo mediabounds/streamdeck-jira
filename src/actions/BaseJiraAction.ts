@@ -1,6 +1,6 @@
 import { DidReceiveSettingsEvent } from "@fnando/streamdeck";
 import Icon, { BadgeOptions } from "../Icon";
-import { IconSettings, BadgeType, CommonSettings } from "../JiraPluginSettings";
+import { IconSettings, BadgeType, CommonSettings, DefaultPluginSettings } from "../JiraPluginSettings";
 import { PollingErrorEvent, PollingResponseEvent } from "../PollingClient";
 import PollingAction, { ActionPollingContext } from "./PollingAction";
 
@@ -118,5 +118,23 @@ export default abstract class BaseJiraAction<ResponseType extends CountableRespo
    */
   protected getDefaultImage(): string {
     return `images/actions/${this.constructor.name}/${this.states[0].image}@2x.png`;
+  }
+
+  /**
+   * Retrieves the base URL to the Atlassian instance.
+   * @param settings - The plugin settings.
+   * @returns The base URL to the Atlassian instance.
+   */
+  protected getUrl(settings: DefaultPluginSettings): string|null {
+    if (!settings.domain) {
+      return null;
+    }
+
+    let url = `https://${settings.domain}`;
+    if (settings.context) {
+      url = `${url}/${settings.context}`;
+    }
+
+    return url;
   }
 }
