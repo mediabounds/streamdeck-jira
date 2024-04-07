@@ -21,8 +21,10 @@ jobs:
         if: ${{github.event_name == 'pull_request'}}
         id: version
         uses: codacy/git-version@2.8.0
+      # This can switch back to https://github.com/marketplace/actions/set-json-field
+      # when https://github.com/jossef/action-set-json-field/pull/13 is merged.
       - name: Write version
-        uses: jossef/action-set-json-field@v2.1
+        uses: Tritolium/action-set-json-field@bd08867
         with:
           file: src/streamdeck.json
           field: version
@@ -30,7 +32,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
       - name: Install dependencies
         run: npm ci
       - name: Lint
