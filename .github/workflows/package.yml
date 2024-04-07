@@ -24,7 +24,7 @@ jobs:
       # This can switch back to https://github.com/marketplace/actions/set-json-field
       # when https://github.com/jossef/action-set-json-field/pull/13 is merged.
       - name: Write version
-        uses: Tritolium/action-set-json-field@bd08867
+        uses: Tritolium/action-set-json-field@bd088679104b89fe94a2c90ae1ca21577af44bdd
         with:
           file: src/streamdeck.json
           field: version
