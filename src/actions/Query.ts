@@ -39,13 +39,21 @@ class Query extends BaseJiraAction<CountableResponse<SearchResponse>, JQLQuerySe
         this.openURL(`${this.getUrl(event.settings)}/issues/?jql=${encodeURIComponent(event.settings.jql)}`);
         break;
       default: {
-        const issues = this.getPollingClient()?.getLastResponse()?.data?.issues ?? [];
+        const action = event.settings.keyAction;
+        if ("limit" in action) {
+          const issues = this.getPollingClient()?.getLastResponse()?.data?.issues ?? [];
 
-        issues
-          .slice(0, event.settings.keyAction.limit ?? 5)
-          .forEach(issue => {
-            this.openURL(this.getIssueUrl(issue, event.settings));
-          });    
+          issues
+            .slice(0, action.limit ?? 5)
+            .forEach(issue => {
+              this.openURL(this.getIssueUrl(issue, event.settings));
+            });    
+        } else if ("url" in action) {
+          if (action.url) {
+            this.openURL(action.url);
+          }
+        }
+        
         break;
       }
     }

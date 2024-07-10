@@ -10,7 +10,17 @@ export interface ViewInBrowserAction {
   limit: number;
 }
 
-export type JQLQueryKeyAction = 'Refresh' | 'ViewFilter' | ViewInBrowserAction;
+/**
+ * An action to open a custom URL.
+ */
+export interface OpenUrlAction {
+  /**
+   * The URL to open when the action is invoked.
+   */
+  url: string;
+}
+
+export type JQLQueryKeyAction = 'Refresh' | 'ViewFilter' | ViewInBrowserAction | OpenUrlAction;
 
 /**
  * Settings used by the JQL Query action.

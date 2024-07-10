@@ -13,6 +13,7 @@ class QueryActionPropertyInspector extends PollingActionInspector<JQLQuerySettin
   private jql = document.getElementById('jql') as HTMLTextAreaElement;
   private keyAction = document.getElementById('key-action') as HTMLSelectElement;
   private keyActionLimit = document.getElementById('key-action-limit') as HTMLInputElement;
+  private keyActionUrl = document.getElementById('key-action-url') as HTMLInputElement;
 
   /**
    * {@inheritDoc}
@@ -25,12 +26,18 @@ class QueryActionPropertyInspector extends PollingActionInspector<JQLQuerySettin
 
     // Action settings.
     this.keyActionLimit.hidden = true;
+    this.keyActionUrl.parentElement.hidden = true;
     if (typeof settings.keyAction === 'string') {
       this.keyAction.value = settings.keyAction;
-    } else if (typeof settings.keyAction !== 'undefined') {
+    } else if ("limit" in settings.keyAction) {
       this.keyAction.value = 'ViewIssues';
       this.keyActionLimit.value = `${settings.keyAction.limit ?? 5}`;
       this.keyActionLimit.hidden = false;
+    } else if ("url" in settings.keyAction) {
+      this.keyAction.value = 'OpenUrl';
+      this.keyActionUrl.value = settings.keyAction.url;
+      this.keyActionUrl.parentElement.hidden = false;
+      this.keyActionUrl.placeholder = this.getJiraUrl();
     }
 
     this.authentication.value = settings;
@@ -96,11 +103,27 @@ class QueryActionPropertyInspector extends PollingActionInspector<JQLQuerySettin
         return 'ViewFilter';
       case 'ViewIssues':
         return {
-          limit: parseInt(this.keyActionLimit.value, 10) ?? 5,
+          limit: parseInt(this.keyActionLimit.value, 10) || 5,
+        };
+      case 'OpenUrl':
+        return {
+          url: this.keyActionUrl.value || this.getJiraUrl()
         };
       case 'Refresh':
         return 'Refresh';
     }
+  }
+
+  /**
+   * Gets the URL to the Jira default page.
+   * @returns The URL to Jira, or null if the Jira connection is not configured.
+   */
+  private getJiraUrl(): string|null {
+    if (!this.settings.domain) {
+      return null;
+    }
+
+    return `https://${this.settings.domain}`;
   }
 }
 
