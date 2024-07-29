@@ -84,8 +84,11 @@ class ConfluenceTasks extends BaseJiraAction<CountableResponse<InlineTasksRespon
   handleKeyDown(event: KeyDownEvent<ConfluenceTasksSettings>): void {
     super.handleKeyDown(event);
 
-    const apiContext = event.settings.strategy === 'PAT' ? '' : '/wiki';
-    this.openURL(`https://${event.settings.domain}${apiContext}/plugins/inlinetasks/mytasks.action`);
+    if (event.settings.strategy === 'APIToken' && !event.settings.context) {
+      event.settings.context = 'wiki';
+    }
+
+    this.openURL(`${this.getUrl(event.settings)}/plugins/inlinetasks/mytasks.action`);
   }
 
   /**
@@ -100,11 +103,14 @@ class ConfluenceTasks extends BaseJiraAction<CountableResponse<InlineTasksRespon
       };
     }
 
+    if (context.settings.strategy === 'APIToken' && !context.settings.context) {
+      context.settings.context = 'wiki';
+    }
+
     const client = JiraConnection.getClient(context.settings);
 
-    const apiContext = context.settings.strategy === 'PAT' ? '' : 'wiki';
     const currentUserResponse = await client.request<ConfluenceUser>({
-      endpoint: `${apiContext}/rest/api/user/current`
+      endpoint: `rest/api/user/current`
     });
 
     const filter: InlineTaskFilter = {
@@ -121,7 +127,7 @@ class ConfluenceTasks extends BaseJiraAction<CountableResponse<InlineTasksRespon
     }
 
     const response = await client.request<InlineTasksResponse>({
-      endpoint: `${apiContext}/rest/api/inlinetasks/search`,
+      endpoint: `rest/api/inlinetasks/search`,
       query: {...filter},
     });
 

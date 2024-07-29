@@ -82,7 +82,12 @@ class ConfluenceSearch extends BaseJiraAction<CountableResponse<CQLResponse>, Co
       event.settings.context = 'wiki';
     }
 
-    this.openURL(`${this.getUrl(event.settings)}/search?cql=${encodeURIComponent(event.settings.cql)}`);
+    if (event.settings.strategy === 'PAT') {
+      this.openURL(`${this.getUrl(event.settings)}/dosearchsite.action?cql=${encodeURIComponent(event.settings.cql)}`);
+    }
+    else {
+      this.openURL(`${this.getUrl(event.settings)}/search?cql=${encodeURIComponent(event.settings.cql)}`);
+    }
   }
 
   /**
