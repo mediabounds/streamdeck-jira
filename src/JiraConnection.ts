@@ -12,10 +12,15 @@ export class JiraConnection {
    * @returns A configured Client.
    */
   public static getClient(settings: DefaultPluginSettings): Client {
-    const {domain, email: username, token: key, strategy} = settings;
+    const {domain, context, email: username, token: key, strategy} = settings;
 
     if (!domain) {
       throw new Error('A domain must be set');
+    }
+
+    let endpoint = `https://${domain}`;
+    if (context) {
+      endpoint = `${endpoint}/${context}`;
     }
 
     if (!key) {
@@ -29,6 +34,6 @@ export class JiraConnection {
       authenticator = new BasicAuth(username, key);
     }
 
-    return new Client(`https://${domain}`, authenticator);
+    return new Client(endpoint, authenticator);
   }
 }

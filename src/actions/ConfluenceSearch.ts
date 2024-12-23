@@ -1,8 +1,8 @@
 import { KeyDownEvent } from "@fnando/streamdeck";
-import { JiraConnection } from "../JiraConnection";
 import { ConfluenceSearchSettings } from "../JiraPluginSettings";
-import BaseJiraAction, { CountableResponse } from "./BaseJiraAction";
+import { CountableResponse } from "./BaseJiraAction";
 import { ActionPollingContext } from "./PollingAction";
+import BaseConfluenceAction from "./BaseConfluenceAction";
 
 /**
  * The response to the search query.
@@ -63,7 +63,7 @@ interface Content {
  * 
  * @see https://developer.atlassian.com/cloud/confluence/advanced-searching-using-cql/
  */
-class ConfluenceSearch extends BaseJiraAction<CountableResponse<CQLResponse>, ConfluenceSearchSettings> {
+class ConfluenceSearch extends BaseConfluenceAction<CountableResponse<CQLResponse>, ConfluenceSearchSettings> {
   /**
    * {@inheritDoc}
    */
@@ -77,9 +77,19 @@ class ConfluenceSearch extends BaseJiraAction<CountableResponse<CQLResponse>, Co
         return;
       }
     }
-    
-    const apiContext = event.settings.strategy === 'PAT' ? '' : '/wiki';
-    this.openURL(`https://${event.settings.domain}${apiContext}/search?cql=${encodeURIComponent(event.settings.cql)}`);
+
+    if (this.isJiraServer(event.settings)) {
+      this.openURL(`${this.getUrl(event.settings)}/dosearchsite.action?cql=${encodeURIComponent(event.settings.cql)}`);
+    }
+    else {
+      const cql = encodeURIComponent(event.settings.cql);
+      if (cql) {
+        this.openURL(`${this.getUrl(event.settings)}/search?cql=${cql}`);
+      }
+      else {
+        this.openURL(`${this.getUrl(event.settings)}/home`);
+      }
+    }
   }
 
   /**
@@ -94,12 +104,10 @@ class ConfluenceSearch extends BaseJiraAction<CountableResponse<CQLResponse>, Co
       };
     }
 
-    const client = JiraConnection.getClient(context.settings);
-
-    const apiContext = context.settings.strategy === 'PAT' ? '' : 'wiki';
+    const client = this.getJiraClient(context.settings);
 
     const response = await client.request<CQLResponse>({
-      endpoint: `${apiContext}/rest/api/search`,
+      endpoint: `rest/api/search`,
       query: {
         cql: cql,
         limit: '5',

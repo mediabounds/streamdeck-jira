@@ -42,9 +42,15 @@ class ConfluenceSearchActionPropertyInspector extends PollingActionInspector<Con
       ...this.icon.value,
     };
 
+    if (settings.strategy === 'APIToken' && !settings.context) {
+      // On JIRA Cloud, all Confluence-related APIs use the `wiki` context path.
+      settings.context = 'wiki';
+    }
+
     this.setSettings(settings);
     this.setGlobalSettings({
       domain: settings.domain,
+      context: settings.context,
       email: settings.email,
       token: settings.token,
       strategy: settings.strategy,
@@ -57,6 +63,7 @@ class ConfluenceSearchActionPropertyInspector extends PollingActionInspector<Con
   protected getDefaultSettings(): ConfluenceSearchSettings {
     return {
       domain: this.globalSettings.domain ?? '',
+      context: this.globalSettings.context ?? 'wiki',
       email: this.globalSettings.email ?? '',
       token: this.globalSettings.token ?? '',
       strategy: this.globalSettings.strategy ?? 'APIToken',

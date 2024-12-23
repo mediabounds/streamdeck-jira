@@ -1,8 +1,8 @@
 import { KeyDownEvent } from "@fnando/streamdeck";
-import { JiraConnection } from "../JiraConnection";
 import { ConfluenceTasksSettings } from "../JiraPluginSettings";
-import BaseJiraAction, { CountableResponse } from "./BaseJiraAction";
+import { CountableResponse } from "./BaseJiraAction";
 import { ActionPollingContext } from "./PollingAction";
+import BaseConfluenceAction from "./BaseConfluenceAction";
 
 /**
  * Query parameters for filtering inline tasks.
@@ -77,15 +77,13 @@ interface ConfluenceUser {
 /**
  * Periodically polls Confluence to get the number of inline tasks assigned to the current user.
  */
-class ConfluenceTasks extends BaseJiraAction<CountableResponse<InlineTasksResponse>, ConfluenceTasksSettings> {
+class ConfluenceTasks extends BaseConfluenceAction<CountableResponse<InlineTasksResponse>, ConfluenceTasksSettings> {
   /**
    * {@inheritDoc}
    */
   handleKeyDown(event: KeyDownEvent<ConfluenceTasksSettings>): void {
     super.handleKeyDown(event);
-
-    const apiContext = event.settings.strategy === 'PAT' ? '' : '/wiki';
-    this.openURL(`https://${event.settings.domain}${apiContext}/plugins/inlinetasks/mytasks.action`);
+    this.openURL(`${this.getUrl(event.settings)}/plugins/inlinetasks/mytasks.action`);
   }
 
   /**
@@ -96,15 +94,31 @@ class ConfluenceTasks extends BaseJiraAction<CountableResponse<InlineTasksRespon
 
     if (!domain) {
       return {
-        count: 0
+        count: 0,
       };
     }
 
-    const client = JiraConnection.getClient(context.settings);
+    const client = this.getJiraClient(context.settings);
 
-    const apiContext = context.settings.strategy === 'PAT' ? '' : 'wiki';
+    if (this.isJiraServer(context.settings)) {
+      // In JIRA Server, getting the count of inline tasks
+      // is part of Notifications and Tasks REST API.
+      // There doesn't seem to be a way to filter by due date.
+      const response = await client.request<number>({
+        endpoint: 'rest/mywork/task/count',
+        query: {
+          completed: 'false',
+        },
+      });
+
+      return {
+        count: response.body,
+      };
+    }
+
+    // https://developer.atlassian.com/cloud/confluence/rest/v1/api-group-users/#api-wiki-rest-api-user-current-get
     const currentUserResponse = await client.request<ConfluenceUser>({
-      endpoint: `${apiContext}/rest/api/user/current`
+      endpoint: `rest/api/user/current`
     });
 
     const filter: InlineTaskFilter = {
@@ -120,8 +134,9 @@ class ConfluenceTasks extends BaseJiraAction<CountableResponse<InlineTasksRespon
       filter.duedateTo = Date.parse(dueDateTo);
     }
 
+    // https://developer.atlassian.com/cloud/confluence/rest/v1/api-group-inline-tasks/#api-wiki-rest-api-inlinetasks-search-get
     const response = await client.request<InlineTasksResponse>({
-      endpoint: `${apiContext}/rest/api/inlinetasks/search`,
+      endpoint: `rest/api/inlinetasks/search`,
       query: {...filter},
     });
 

@@ -79,6 +79,7 @@ export class AuthenticationComponent extends PropertyInspectorComponent<DefaultP
   private email: HTMLInputElement;
   private token: HTMLInputElement;
   private tokenType: HTMLSelectElement;
+  private contextPath: HTMLInputElement;
 
   /**
    * {@inheritDoc}
@@ -91,10 +92,22 @@ export class AuthenticationComponent extends PropertyInspectorComponent<DefaultP
    * {@inheritDoc}
    */
   get value(): DefaultPluginSettings {
+    // The PAT authentication strategy is only used for JIRA Server.
+    // A custom context path is only supported for JIRA Server,
+    // so if the authentication method is not PAT, then there can be
+    // no custom context path.
+    if (this.tokenType.value !== 'PAT') {
+      this.contextPath.value = '';
+    }
+
     return {
       domain: this.domain.value
         .replace(/^https?:\/\//, '')
         .replace(/\/.*$/, '')
+        .trim(),
+      context: this.contextPath.value
+        // Remove leading and trailing slashes
+        .replace(/^\/+|\/+$/g, '')
         .trim(),
       email: this.email.value.trim(),
       token: this.token.value.trim(),
@@ -107,6 +120,7 @@ export class AuthenticationComponent extends PropertyInspectorComponent<DefaultP
    */
   set value(newValue: DefaultPluginSettings) {
     this.domain.value = newValue.domain;
+    this.contextPath.value = newValue.context;
     this.email.value = newValue.email;
     this.token.value = newValue.token;
     this.tokenType.value = newValue.strategy;
@@ -122,6 +136,7 @@ export class AuthenticationComponent extends PropertyInspectorComponent<DefaultP
     this.email = this.querySelector('#email');
     this.token = this.querySelector('#token');
     this.tokenType = this.querySelector('#token-type');
+    this.contextPath = this.querySelector('#context-path');
   }
 
   /**
