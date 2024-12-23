@@ -3,6 +3,8 @@ import Icon, { BadgeOptions } from "../Icon";
 import { IconSettings, BadgeType, CommonSettings, DefaultPluginSettings } from "../JiraPluginSettings";
 import { PollingErrorEvent, PollingResponseEvent } from "../PollingClient";
 import PollingAction, { ActionPollingContext } from "./PollingAction";
+import Client from "../Client";
+import { JiraConnection } from "../JiraConnection";
 
 /**
  * A generic API response that has a countable number of results.
@@ -118,6 +120,26 @@ export default abstract class BaseJiraAction<ResponseType extends CountableRespo
    */
   protected getDefaultImage(): string {
     return `images/actions/${this.constructor.name}/${this.states[0].image}@2x.png`;
+  }
+
+  /**
+   * Determines whether the plugin is configured for JIRA Server.
+   *
+   * @param settings - The plugin settings.
+   * @returns `true` if the plugin settings indicate it is configured for JIRA Server.
+   */
+  protected isJiraServer(settings: DefaultPluginSettings): boolean {
+    return settings.strategy === 'PAT';
+  }
+
+  /**
+   * Gets an HTTP client for making API calls to JIRA.
+   * 
+   * @param settings - The plugin settings.
+   * @returns A configured HTTP client for making API calls.
+   */
+  protected getJiraClient(settings: DefaultPluginSettings): Client {
+    return JiraConnection.getClient(settings);
   }
 
   /**

@@ -46,6 +46,7 @@ class ConfluenceTasksActionPropertyInspector extends PollingActionInspector<Conf
     };
 
     if (settings.strategy === 'APIToken' && !settings.context) {
+      // On JIRA Cloud, all Confluence-related APIs use the `wiki` context path.
       settings.context = 'wiki';
     }
 

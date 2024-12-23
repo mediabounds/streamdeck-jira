@@ -92,6 +92,10 @@ export class AuthenticationComponent extends PropertyInspectorComponent<DefaultP
    * {@inheritDoc}
    */
   get value(): DefaultPluginSettings {
+    // The PAT authentication strategy is only used for JIRA Server.
+    // A custom context path is only supported for JIRA Server,
+    // so if the authentication method is not PAT, then there can be
+    // no custom context path.
     if (this.tokenType.value !== 'PAT') {
       this.contextPath.value = '';
     }
