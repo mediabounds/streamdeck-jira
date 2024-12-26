@@ -38,6 +38,18 @@ export interface JQLQuerySettings extends CommonSettings {
 }
 
 /**
+ * Settings used by the OpsAlerts action.
+ */
+export interface OpsAlertsSettings extends CommonSettings {
+  /**
+   * The query to use for filtering alerts.
+   * 
+   * @see https://operations-help.atlassian.net/wiki/spaces/OPSHELP/pages/8028374/Search+syntax+for+alerts
+   */
+  query: string;
+}
+
+/**
  * Settings used by the Confluence Search action.
  */
 export interface ConfluenceSearchSettings extends CommonSettings {

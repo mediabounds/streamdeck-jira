@@ -4,11 +4,13 @@ A Stream Deck plugin for finding issues in Jira or content in Confluence.
 
 For example, add an action showing the number of Jira issues matching a JQL query (i.e. the number of new issues or issues waiting for your feedback).
 Or, add an action showing the number of inline Confluence tasks assigned to you.
+Or, add an action showing the number of open alerts in JSM.
 
 ## Features
 * Allows for multiple actions to be defined with different JQL queries
 * Search Confluence to find content matching a CQL query
 * Display the number of inline tasks assigned to you in Confluence
+* Shows the number of alerts in JSM Operations (Jira Cloud only)
 * Button icon shows the count of items matching the query
 * Many customization options for how the badge is displayed
 * Allows for custom icons to be set
@@ -32,6 +34,9 @@ https://apps.elgato.com/plugins/com.mediabounds.streamdeck.jira
 ### Confluence Tasks
 * **Due After** -- finds inline tasks due on or after this date.
 * **Due Before** -- finds inline tasks due before this date.
+
+### Ops Alerts
+* **Query** -- a query for filtering a list of alerts ([query syntax](https://operations-help.atlassian.net/wiki/spaces/OPSHELP/pages/8028374/Search+syntax+for+alerts)).
 
 ### Common Settings
 #### Authentication
@@ -69,6 +74,17 @@ If you're sure all the configuration is correct but the connection is still not 
 
 ![Debugging a problem](docs/problem-debug.png)
 </details>
+
+## Development
+This plugin is based on the [streamdeck](https://github.com/fnando/streamdeck) plugin framework.
+
+### Building a development version
+
+    npx streamdeck bundle --dev
+
+### Opening the debugger
+
+    npx streamdeck debug
 
 ## License
 The plugin is available as open source under the terms of the

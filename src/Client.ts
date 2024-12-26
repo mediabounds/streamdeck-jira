@@ -97,7 +97,14 @@ export class RequestError<T> extends Error {
  * A really basic HttpClient wrapper around the Fetch API.
  */
 export default class Client {
-  constructor(private baseUrl: string, private authenticator?: Authenticator, private defaultHeaders?: Headers) {}
+  constructor(private baseUrl: string, private _authenticator?: Authenticator, private defaultHeaders?: Headers) {}
+
+  /**
+   * The authenticator for this client.
+   */
+  public get authenticator(): Authenticator {
+    return this._authenticator;
+  }
 
   /**
    * Perform an HTTP(S) request.
