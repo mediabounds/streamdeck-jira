@@ -1,6 +1,6 @@
 import { ActionPollingDebugInfo } from "../actions/PollingAction";
 import Icon, { BadgePosition } from "../Icon";
-import { BadgeType, DefaultPluginSettings, IconSettings } from "../JiraPluginSettings";
+import { BadgeType, DefaultPluginSettings, IconSettings, ImageEffect } from "../JiraPluginSettings";
 
 /**
  * Base class for reusable components in the Property Inspector.
@@ -166,6 +166,7 @@ export class IconComponent extends PropertyInspectorComponent<IconSettings> {
   private badgePosition: HTMLSelectElement;
   private badgeColor: HTMLInputElement;
   private customImageData?: string;
+  private desaturateCheckbox: HTMLInputElement;
 
   /**
    * {@inheritDoc}
@@ -183,6 +184,7 @@ export class IconComponent extends PropertyInspectorComponent<IconSettings> {
       customImage: this.customImageData,
       badgePosition: <BadgePosition>this.badgePosition.value ?? BadgePosition.TopRight,
       badgeColor: this.badgeColor.value ?? 'red',
+      noResultsEffect: this.desaturateCheckbox.checked ? ImageEffect.Desaturate : ImageEffect.None,
     };
   }
 
@@ -194,6 +196,7 @@ export class IconComponent extends PropertyInspectorComponent<IconSettings> {
     this.customImageData = newValue.customImage;
     this.badgePosition.value = newValue.badgePosition;
     this.badgeColor.value = newValue.badgeColor ?? '#FF0000';
+    this.desaturateCheckbox.checked = newValue.noResultsEffect === ImageEffect.Desaturate;
     this.onValueChanged();
   }
 
@@ -208,6 +211,7 @@ export class IconComponent extends PropertyInspectorComponent<IconSettings> {
     this.badgeType = this.querySelector('#badge-type');
     this.badgePosition = this.querySelector('#badge-position');
     this.badgeColor = this.querySelector('#badge-color');
+    this.desaturateCheckbox = this.querySelector('#desaturate-enabled');
 
     this.customImagePreview.addEventListener('click', () => this.removeCustomImage());
   }

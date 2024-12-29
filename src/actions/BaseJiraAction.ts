@@ -1,6 +1,6 @@
 import { DidReceiveSettingsEvent } from "@fnando/streamdeck";
 import Icon, { BadgeOptions } from "../Icon";
-import { IconSettings, BadgeType, CommonSettings, DefaultPluginSettings } from "../JiraPluginSettings";
+import { IconSettings, BadgeType, CommonSettings, DefaultPluginSettings, ImageEffect } from "../JiraPluginSettings";
 import { PollingErrorEvent, PollingResponseEvent } from "../PollingClient";
 import PollingAction, { ActionPollingContext } from "./PollingAction";
 import Client from "../Client";
@@ -76,19 +76,15 @@ export default abstract class BaseJiraAction<ResponseType extends CountableRespo
    * @param settings - The current action settings.
    */
   protected setBadge(badge: BadgeOptions, settings: IconSettings) {
-    if (badge.value == "0" || !badge.value.length || settings.badgeType === BadgeType.Hidden) {
-      this.setImage(settings.customImage);
-      this.setTitle('');
-      return;
-    }
+    const hasNoResults = badge.value == "0" || !badge.value.length;
+    const badgeHidden = hasNoResults || settings.badgeType === BadgeType.Hidden || settings.badgeType === BadgeType.UseTitle;
 
-    if (settings.badgeType === BadgeType.UseTitle) {
-      this.setImage(settings.customImage);
+    if (!hasNoResults && settings.badgeType === BadgeType.UseTitle) {
       this.setTitle(badge.value);
-      return;
     }
-
-    this.setTitle('');
+    else {
+      this.setTitle('');
+    }
 
     if (settings.badgeType === BadgeType.Indicator) {
       badge.value = ' ';
@@ -102,10 +98,17 @@ export default abstract class BaseJiraAction<ResponseType extends CountableRespo
       badge.position = settings.badgePosition;
     }
 
+    let filter = 'none';
+    if (hasNoResults && settings.noResultsEffect === ImageEffect.Desaturate) {
+      filter = 'grayscale(100%)';
+    }
+
     (new Icon())
-      .addImage(settings.customImage ?? this.getDefaultImage(), 0, 0, 144, 144)
+      .addImage(settings.customImage ?? this.getDefaultImage(), 0, 0, 144, 144, filter)
       .then((icon) => {
-        icon.setBadge(badge);
+        if (!badgeHidden) {
+          icon.setBadge(badge);
+        }
         this.setImage(icon.getImage());
       })
       .catch((error) => {

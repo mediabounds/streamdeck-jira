@@ -111,11 +111,31 @@ export enum BadgeType {
   Hidden = 'hidden'
 }
 
+/**
+ * Represents image effects that can be applied on an icon.
+ */
+export enum ImageEffect {
+  /**
+   * No image effect is applied.
+   */
+  None = 'none',
+
+  /**
+   * Desaturates the icon so it is grayscale.
+   */
+  Desaturate = 'desaturate'
+}
+
 export interface IconSettings extends BadgeSettings {
   /**
    * Base64-encoded data of a custom image to use for the action.
    */
   customImage?: string;
+
+  /**
+   * An effect to apply to the icon when there are no results.
+   */
+  noResultsEffect?: ImageEffect;
 }
 
 /**
