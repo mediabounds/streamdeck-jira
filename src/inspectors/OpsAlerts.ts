@@ -1,5 +1,5 @@
 import plugin from "../plugin";
-import { BadgeType, OpsAlertsSettings } from "../JiraPluginSettings";
+import { BadgeType, OpsAlertsKeyAction, OpsAlertsSettings } from "../JiraPluginSettings";
 import { BadgePosition } from "../Icon";
 import PollingActionInspector from "../PollingActionInspector";
 import { AuthenticationComponent, IconComponent } from "./Components";
@@ -9,6 +9,7 @@ import { AuthenticationComponent, IconComponent } from "./Components";
  */
 class OpsAlertsActionPropertyInspector extends PollingActionInspector<OpsAlertsSettings> {
   private query = document.getElementById('query') as HTMLTextAreaElement;
+  private keyAction = document.getElementById('key-action') as HTMLSelectElement;
   private authentication = document.getElementById('auth') as AuthenticationComponent;
   private icon = document.getElementById('icon') as IconComponent;
 
@@ -31,6 +32,7 @@ class OpsAlertsActionPropertyInspector extends PollingActionInspector<OpsAlertsS
     const settings = Object.assign({}, this.getDefaultSettings(), this.settings);
 
     this.query.value = settings.query;
+    this.keyAction.value = settings.keyAction;
 
     this.authentication.value = settings;
     this.icon.value = settings;
@@ -49,6 +51,7 @@ class OpsAlertsActionPropertyInspector extends PollingActionInspector<OpsAlertsS
   protected saveSettings(): void {
     const settings: OpsAlertsSettings = {
       query: this.query.value,
+      keyAction: this.keyAction.value as OpsAlertsKeyAction,
       pollingDelay: 120,
       ...this.authentication.value,
       ...this.icon.value,
@@ -75,7 +78,8 @@ class OpsAlertsActionPropertyInspector extends PollingActionInspector<OpsAlertsS
       token: this.globalSettings.token ?? '',
       strategy: 'APIToken',
       query: 'status: open',
-      pollingDelay: 120,
+      keyAction: 'View',
+      pollingDelay: 60,
       badgeType: BadgeType.Number,
       badgePosition: BadgePosition.TopRight,
     };

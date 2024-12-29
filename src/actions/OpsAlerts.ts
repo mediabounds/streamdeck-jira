@@ -35,6 +35,15 @@ class OpsAlerts extends BaseJsmAction<CountableResponse<ListAlertResponse>, OpsA
   handleKeyDown(event: KeyDownEvent<OpsAlertsSettings>): void {
     super.handleKeyDown(event);
 
+    if (event.settings.keyAction === "Acknowledge") {
+      this.getPollingClient().getLastResponse()?.data?.values?.forEach(alert => {
+        this.acknowledgeAlert(alert, event.settings)
+          .catch(_ => {
+            this.showAlert();
+          });
+      });
+    }
+
     let url: string;
     if (this.getPollingClient().getLastResponse()?.count === 1) {
       const alert = this.getPollingClient().getLastResponse().data.values[0];
@@ -47,9 +56,8 @@ class OpsAlerts extends BaseJsmAction<CountableResponse<ListAlertResponse>, OpsA
     if (url) {
       this.openURL(url);
     }
-    else {
-      this.getPollingClient().poll();
-    }
+
+    setTimeout(() => this.getPollingClient().poll(), 3000);
   }
 
   /**
@@ -72,6 +80,7 @@ class OpsAlerts extends BaseJsmAction<CountableResponse<ListAlertResponse>, OpsA
       endpoint: `v1/alerts`,
       query: {
         query: query,
+        sort: 'lastOccurredAt',
       },
     });
 
@@ -90,6 +99,23 @@ class OpsAlerts extends BaseJsmAction<CountableResponse<ListAlertResponse>, OpsA
    */
   protected getAlertUrl(alert: Alert, settings: OpsAlertsSettings): string {
     return `${this.getUrl(settings)}/jira/ops/alerts/${alert.id}`;
+  }
+
+  /**
+   * Sets an alert's status to "Acknowledged".
+   * 
+   * @param alert - The alert to acknowledge.
+   * @param settings - The plugin settings.
+   */
+  protected async acknowledgeAlert(alert: Alert, settings: OpsAlertsSettings) {
+    const cloudId = await this.getTenantCloudId(settings);
+    const auth = this.getJiraClient(settings).authenticator;
+    const client = new Client(`https://api.atlassian.com/jsm/ops/api/${cloudId}`, auth);
+
+    await client.request({
+      endpoint: `v1/alerts/${alert.id}/acknowledge`,
+      method: 'POST',
+    });
   }
 
 }

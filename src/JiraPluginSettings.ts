@@ -37,6 +37,8 @@ export interface JQLQuerySettings extends CommonSettings {
   keyAction: JQLQueryKeyAction;
 }
 
+export type OpsAlertsKeyAction = 'View' | 'Acknowledge';
+
 /**
  * Settings used by the OpsAlerts action.
  */
@@ -47,6 +49,11 @@ export interface OpsAlertsSettings extends CommonSettings {
    * @see https://operations-help.atlassian.net/wiki/spaces/OPSHELP/pages/8028374/Search+syntax+for+alerts
    */
   query: string;
+
+  /**
+   * The action to perform when the key is pressed.
+   */
+  keyAction: OpsAlertsKeyAction;
 }
 
 /**
