@@ -1,5 +1,5 @@
 import { KeyDownEvent } from "@fnando/streamdeck";
-import { OpsAlertsSettings } from "../JiraPluginSettings";
+import { OpsAlertsDateFilter, OpsAlertsSettings } from "../JiraPluginSettings";
 import { CountableResponse } from "./BaseJiraAction";
 import { ActionPollingContext } from "./PollingAction";
 import Client from "../Client";
@@ -16,11 +16,21 @@ interface ListAlertResponse {
 /**
  * An individual operations alert.
  * 
- * An alert has way more available fields, but we really only care about the ID.
+ * An alert has way more available fields, but only care about a few of them.
  */
 interface Alert {
+  /**
+   * The unique ID of the alert.
+   */
   id: string;
+  /**
+   * The tiny ID for the alert.
+   */
   tinyId: string;
+  /**
+   * Whether the alert has been acknowledged.
+   */
+  acknowledged: boolean;
 }
 
 /**
@@ -81,6 +91,8 @@ class OpsAlerts extends BaseJsmAction<CountableResponse<ListAlertResponse>, OpsA
       query: {
         query: query,
         sort: 'lastOccurredAt',
+        from: this.getTimestamp(context.settings.after) ?? 0,
+        to: this.getTimestamp(context.settings.before) ?? Date.now(),
       },
     });
 
@@ -108,6 +120,12 @@ class OpsAlerts extends BaseJsmAction<CountableResponse<ListAlertResponse>, OpsA
    * @param settings - The plugin settings.
    */
   protected async acknowledgeAlert(alert: Alert, settings: OpsAlertsSettings) {
+    if (alert.acknowledged) {
+      // If the alert has already been acknowledged,
+      // then there's nothing to do.
+      return;
+    }
+
     const cloudId = await this.getTenantCloudId(settings);
     const auth = this.getJiraClient(settings).authenticator;
     const client = new Client(`https://api.atlassian.com/jsm/ops/api/${cloudId}`, auth);
@@ -116,6 +134,29 @@ class OpsAlerts extends BaseJsmAction<CountableResponse<ListAlertResponse>, OpsA
       endpoint: `v1/alerts/${alert.id}/acknowledge`,
       method: 'POST',
     });
+  }
+
+  /**
+   * Converts a date filter to a timestamp.
+   * 
+   * @param filter - The current filter value.
+   * @returns The timestamp (in milliseconds) for the date filter.
+   */
+  protected getTimestamp(filter: OpsAlertsDateFilter): number|null {
+    if (!filter || filter === 'All') {
+      return null;
+    }
+    else if ('value' in filter) {
+      const date = new Date();
+      date.setHours(date.getHours() - filter.value);
+      return date.getTime();
+    }
+    else if ('date' in filter) {
+      const date = filter.date ? new Date(filter.date) : new Date();
+      return date.getTime();
+    }
+
+    return null;
   }
 
 }

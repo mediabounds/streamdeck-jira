@@ -37,7 +37,35 @@ export interface JQLQuerySettings extends CommonSettings {
   keyAction: JQLQueryKeyAction;
 }
 
+/**
+ * Available actions when the OpsAlert button is pressed.
+ */
 export type OpsAlertsKeyAction = 'View' | 'Acknowledge';
+
+/**
+ * A date filter for alerts.
+ */
+export type OpsAlertsDateFilter = 'All' | RelativeDateFilter | AbsoluteDateFilter;
+
+/**
+ * Represents a relative date filter (as in number of hours ago).
+ */
+export interface RelativeDateFilter {
+  /**
+   * The number of hours ago from the current time.
+   */
+  value: number;
+}
+
+/**
+ * Represents an absolute date filter.
+ */
+export interface AbsoluteDateFilter {
+  /**
+   * The date string.
+   */
+  date: string;
+}
 
 /**
  * Settings used by the OpsAlerts action.
@@ -49,6 +77,16 @@ export interface OpsAlertsSettings extends CommonSettings {
    * @see https://operations-help.atlassian.net/wiki/spaces/OPSHELP/pages/8028374/Search+syntax+for+alerts
    */
   query: string;
+
+  /**
+   * Only include alerts occurring after the date filter.
+   */
+  after?: OpsAlertsDateFilter;
+
+  /**
+   * Only include alerts occurring before the date filter.
+   */
+  before?: OpsAlertsDateFilter;
 
   /**
    * The action to perform when the key is pressed.

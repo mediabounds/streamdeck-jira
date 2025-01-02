@@ -159,7 +159,13 @@ export default class Client {
   protected getUrl(options: RequestOptions): string {
     let url = `${this.baseUrl}/${options.endpoint}`;
     if (options.query) {
-      url += `?${(new URLSearchParams(options.query).toString())}`;
+      const query: Record<string, string> = {};
+      for (const key in options.query) {
+        if (options.query[key] != null) {
+          query[key] = `${options.query[key]}`;
+        }
+      }
+      url += `?${(new URLSearchParams(query).toString())}`;
     }
     return url;
   }
