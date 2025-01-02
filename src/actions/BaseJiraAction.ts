@@ -53,6 +53,7 @@ export default abstract class BaseJiraAction<ResponseType extends CountableRespo
    */
   handleDidReceivePollingResponse(event: PollingResponseEvent<ActionPollingContext<SettingsType>, ResponseType>): void {
     super.handleDidReceivePollingResponse(event);
+
     if (!event.didRecoverFromError && event.response.count === event.client.getLastResponse()?.count) {
       return;
     }

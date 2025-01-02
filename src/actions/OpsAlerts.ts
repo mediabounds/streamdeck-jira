@@ -2,8 +2,7 @@ import { KeyDownEvent } from "@fnando/streamdeck";
 import { OpsAlertsDateFilter, OpsAlertsSettings } from "../JiraPluginSettings";
 import { CountableResponse } from "./BaseJiraAction";
 import { ActionPollingContext } from "./PollingAction";
-import Client from "../Client";
-import BaseJsmAction from "./BaseJsmAction";
+import BaseJiraCloudPlatformAction from "./BaseJiraCloudPlatformAction";
 
 /**
  * The expected response structure from JSM when querying alerts.
@@ -38,7 +37,7 @@ interface Alert {
  * 
  * @see https://developer.atlassian.com/cloud/jira/service-desk-ops/rest/v2/api-group-alerts/#api-v1-alerts-get
  */
-class OpsAlerts extends BaseJsmAction<CountableResponse<ListAlertResponse>, OpsAlertsSettings> {
+class OpsAlerts extends BaseJiraCloudPlatformAction<CountableResponse<ListAlertResponse>, OpsAlertsSettings> {
   /**
    * {@inheritDoc}
    */
@@ -74,17 +73,15 @@ class OpsAlerts extends BaseJsmAction<CountableResponse<ListAlertResponse>, OpsA
    * {@inheritDoc}
    */
   protected async getResponse(context: ActionPollingContext<OpsAlertsSettings>): Promise<CountableResponse<ListAlertResponse>> {
-    const {domain, query} = context.settings;
+    const {domain, query, cloudId} = context.settings;
 
-    if (!domain) {
+    if (!domain || !cloudId) {
       return {
         count: 0
       };
     }
 
-    const cloudId = await this.getTenantCloudId(context.settings);
-    const auth = this.getJiraClient(context.settings).authenticator;
-    const client = new Client(`https://api.atlassian.com/jsm/ops/api/${cloudId}`, auth);
+    const client = this.getJiraClient(context.settings);
 
     const response = await client.request<ListAlertResponse>({
       endpoint: `v1/alerts`,
@@ -126,9 +123,7 @@ class OpsAlerts extends BaseJsmAction<CountableResponse<ListAlertResponse>, OpsA
       return;
     }
 
-    const cloudId = await this.getTenantCloudId(settings);
-    const auth = this.getJiraClient(settings).authenticator;
-    const client = new Client(`https://api.atlassian.com/jsm/ops/api/${cloudId}`, auth);
+    const client = this.getJiraClient(settings);
 
     await client.request({
       endpoint: `v1/alerts/${alert.id}/acknowledge`,

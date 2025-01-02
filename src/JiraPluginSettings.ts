@@ -70,7 +70,7 @@ export interface AbsoluteDateFilter {
 /**
  * Settings used by the OpsAlerts action.
  */
-export interface OpsAlertsSettings extends CommonSettings {
+export interface OpsAlertsSettings extends JiraCloudTenantSettings {
   /**
    * The query to use for filtering alerts.
    * 
@@ -117,6 +117,18 @@ export interface ConfluenceTasksSettings extends CommonSettings {
    * Only return inline tasks due before this date (formatted as yyyy-mm-dd).
    */
   dueDateTo?: string;
+}
+
+/**
+ * Settings used by actions that connect to Jira Cloud Platform.
+ * 
+ * These are actions that require the use of a cloud ID.
+ */
+export interface JiraCloudTenantSettings extends CommonSettings {
+  /**
+   * The cloud ID for the tenant.
+   */
+  cloudId?: string;
 }
 
 /**
