@@ -1,5 +1,4 @@
 import { KeyDownEvent } from "@fnando/streamdeck";
-import { JiraConnection } from "../JiraConnection";
 import { JQLQuerySettings } from "../JiraPluginSettings";
 import BaseJiraAction, { CountableResponse } from "./BaseJiraAction";
 import { ActionPollingContext } from "./PollingAction";
@@ -71,7 +70,7 @@ class Query extends BaseJiraAction<CountableResponse<SearchResponse>, JQLQuerySe
       };
     }
 
-    const client = JiraConnection.getClient(context.settings);
+    const client = this.getJiraClient(context.settings);
     const response = await client.request<SearchResponse>({
       endpoint: 'rest/api/latest/search',
       query: {

@@ -261,6 +261,7 @@ option {
   align-items: center;
   margin-top: 2px;
   max-width: 344px;
+  gap: 5px;
   /* -webkit-user-drag: none; */
 }
 
@@ -272,7 +273,7 @@ option {
   margin-bottom: 0px;
 }
 
-.sdpi-item > *:not(.sdpi-item-label):not(.sdpi-item):not(meter):not(details):not(canvas) {
+.sdpi-item > *:not(.sdpi-item-label):not(.sdpi-item):not(meter):not(details):not(canvas):not(.sdpi-item-value-suffix) {
   min-height: 26px;
   padding: 0px 4px 0px 4px;
 }
@@ -362,8 +363,6 @@ table > caption {
   flex: 1 0 0;
   /* flex-grow: 1;
   flex-shrink: 0; */
-  margin-right: 14px;
-  margin-left: 4px;
   justify-content: space-evenly;
 }
 
@@ -374,10 +373,6 @@ canvas.sdpi-item-value {
   height: 144px;
   margin: 0 auto;
   cursor: pointer;
-}
-
-input.sdpi-item-value {
-  margin-left: 5px;
 }
 
 .sdpi-item-value button,

@@ -90,13 +90,14 @@ export default class Icon {
    * @param height - The height to use when drawing the image (defaults to the intrinsic height).
    * @returns A promise that resolves to the current once the image has been drawn.
    */
-  public addImage(imagePath: string, x = 0, y = 0, width?: number, height?: number): Promise<Icon> {
+  public addImage(imagePath: string, x = 0, y = 0, width?: number, height?: number, filter?: string): Promise<Icon> {
     const image = new Image();
     image.src = imagePath;
 
     return new Promise<Icon>((resolve, reject) => {
       image.onload = () => {
         const ctx = this.getContext();
+        ctx.filter = filter || 'none';
         ctx.drawImage(image, x, y, width, height);
         resolve(this);
       };

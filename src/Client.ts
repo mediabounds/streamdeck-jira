@@ -97,7 +97,14 @@ export class RequestError<T> extends Error {
  * A really basic HttpClient wrapper around the Fetch API.
  */
 export default class Client {
-  constructor(private baseUrl: string, private authenticator?: Authenticator, private defaultHeaders?: Headers) {}
+  constructor(private baseUrl: string, private _authenticator?: Authenticator, private defaultHeaders?: Headers) {}
+
+  /**
+   * The authenticator for this client.
+   */
+  public get authenticator(): Authenticator {
+    return this._authenticator;
+  }
 
   /**
    * Perform an HTTP(S) request.
@@ -152,7 +159,13 @@ export default class Client {
   protected getUrl(options: RequestOptions): string {
     let url = `${this.baseUrl}/${options.endpoint}`;
     if (options.query) {
-      url += `?${(new URLSearchParams(options.query).toString())}`;
+      const query: Record<string, string> = {};
+      for (const key in options.query) {
+        if (options.query[key] != null) {
+          query[key] = `${options.query[key]}`;
+        }
+      }
+      url += `?${(new URLSearchParams(query).toString())}`;
     }
     return url;
   }

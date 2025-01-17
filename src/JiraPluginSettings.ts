@@ -38,6 +38,63 @@ export interface JQLQuerySettings extends CommonSettings {
 }
 
 /**
+ * Available actions when the OpsAlert button is pressed.
+ */
+export type OpsAlertsKeyAction = 'View' | 'Acknowledge';
+
+/**
+ * A date filter for alerts.
+ */
+export type OpsAlertsDateFilter = 'All' | RelativeDateFilter | AbsoluteDateFilter;
+
+/**
+ * Represents a relative date filter (as in number of hours ago).
+ */
+export interface RelativeDateFilter {
+  /**
+   * The number of hours ago from the current time.
+   */
+  value: number;
+}
+
+/**
+ * Represents an absolute date filter.
+ */
+export interface AbsoluteDateFilter {
+  /**
+   * The date string.
+   */
+  date: string;
+}
+
+/**
+ * Settings used by the OpsAlerts action.
+ */
+export interface OpsAlertsSettings extends JiraCloudTenantSettings {
+  /**
+   * The query to use for filtering alerts.
+   * 
+   * @see https://operations-help.atlassian.net/wiki/spaces/OPSHELP/pages/8028374/Search+syntax+for+alerts
+   */
+  query: string;
+
+  /**
+   * Only include alerts occurring after the date filter.
+   */
+  after?: OpsAlertsDateFilter;
+
+  /**
+   * Only include alerts occurring before the date filter.
+   */
+  before?: OpsAlertsDateFilter;
+
+  /**
+   * The action to perform when the key is pressed.
+   */
+  keyAction: OpsAlertsKeyAction;
+}
+
+/**
  * Settings used by the Confluence Search action.
  */
 export interface ConfluenceSearchSettings extends CommonSettings {
@@ -60,6 +117,18 @@ export interface ConfluenceTasksSettings extends CommonSettings {
    * Only return inline tasks due before this date (formatted as yyyy-mm-dd).
    */
   dueDateTo?: string;
+}
+
+/**
+ * Settings used by actions that connect to Jira Cloud Platform.
+ * 
+ * These are actions that require the use of a cloud ID.
+ */
+export interface JiraCloudTenantSettings extends CommonSettings {
+  /**
+   * The cloud ID for the tenant.
+   */
+  cloudId?: string;
 }
 
 /**
@@ -99,11 +168,31 @@ export enum BadgeType {
   Hidden = 'hidden'
 }
 
+/**
+ * Represents image effects that can be applied on an icon.
+ */
+export enum ImageEffect {
+  /**
+   * No image effect is applied.
+   */
+  None = 'none',
+
+  /**
+   * Desaturates the icon so it is grayscale.
+   */
+  Desaturate = 'desaturate'
+}
+
 export interface IconSettings extends BadgeSettings {
   /**
    * Base64-encoded data of a custom image to use for the action.
    */
   customImage?: string;
+
+  /**
+   * An effect to apply to the icon when there are no results.
+   */
+  noResultsEffect?: ImageEffect;
 }
 
 /**

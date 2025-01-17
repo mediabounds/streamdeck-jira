@@ -1,0 +1,49 @@
+<link rel="stylesheet" type="text/css" href="../css/sdpi.css" />
+<link rel="stylesheet" type="text/css" href="../css/custom.css" />
+<script src="components.js"></script>
+
+<div class="sdpi-item">
+  <div class="sdpi-item-label"><a href="https://operations-help.atlassian.net/wiki/spaces/OPSHELP/pages/8028374/Search+syntax+for+alerts" target="_blank">Query</a></div>
+  <textarea class="sdpi-item-value" id="query"></textarea>
+</div>
+<pi-status id="status"></pi-status>
+
+<div class="sdpi-item">
+  <div class="sdpi-item-label">Since</div>
+  <select class="sdpi-item-value" id="date-filter-after">
+    <option value="All" selected>Time began</option>
+    <option value="Relative">Time ago</option>
+    <option value="Absolute">Date</option>
+  </select>
+  <input class="sdpi-item-value" type="number" placeholder="24" min="0" step="1" hidden>
+  <div class="sdpi-item-value sdpi-item-value-suffix" hidden>hours ago</div>
+  <input class="sdpi-item-value" type="date" hidden>
+</div>
+
+<div class="sdpi-item">
+  <div class="sdpi-item-label">Until</div>
+  <select class="sdpi-item-value" id="date-filter-before">
+    <option value="All" selected>Now</option>
+    <option value="Relative">Time ago</option>
+    <option value="Absolute">Date</option>
+  </select>
+  <input class="sdpi-item-value" type="number" placeholder="24" min="0" step="1" hidden>
+  <div class="sdpi-item-value sdpi-item-value-suffix" hidden>hours ago</div>
+  <input class="sdpi-item-value" type="date" hidden>
+</div>
+
+<div type="group" class="sdpi-item">
+  <div class="sdpi-heading">Button</div>
+  <div class="sdpi-item">
+    <div class="sdpi-item-label">Action</div>
+    <select class="sdpi-item-value" id="key-action">
+      <option value="View" selected>View alerts</option>
+      <option value="Acknowledge">Acknowledge and view</option>
+    </select>
+  </div>
+</div>
+
+<pi-authentication id="auth"></pi-authentication>
+<pi-icon id="icon"></pi-icon>
+
+<script src="OpsAlerts.js"></script>
