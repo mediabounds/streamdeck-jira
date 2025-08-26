@@ -8,7 +8,6 @@ import { ActionPollingContext } from "./PollingAction";
  */
 interface SearchResponse {
   issues: Issue[];
-  total: number;
 }
 
 /**
@@ -72,14 +71,16 @@ class Query extends BaseJiraAction<CountableResponse<SearchResponse>, JQLQuerySe
 
     const client = this.getJiraClient(context.settings);
     const response = await client.request<SearchResponse>({
-      endpoint: 'rest/api/latest/search',
+      endpoint: 'rest/api/3/search/jql',
       query: {
         jql: jql,
+        fields: 'key',
+        maxResults: 1000,
       },
     });
 
     return {
-      count: response.body.total,
+      count: response.body.issues.length,
       data: response.body,
     }
   }
