@@ -4,10 +4,17 @@ import BaseJiraAction, { CountableResponse } from "./BaseJiraAction";
 import { ActionPollingContext } from "./PollingAction";
 
 /**
- * The expected response structure from Jira when executing JQL.
+ * The expected response structure from Jira when executing JQL using the modern API.
  */
 interface SearchResponse {
   issues: Issue[];
+}
+
+/**
+ * Expected response structure from legacy API for executing JQL (used by Jira Server).
+ */
+interface LegacySearchResults extends SearchResponse {
+  total: number;
 }
 
 /**
@@ -70,6 +77,20 @@ class Query extends BaseJiraAction<CountableResponse<SearchResponse>, JQLQuerySe
     }
 
     const client = this.getJiraClient(context.settings);
+
+    if (this.isJiraServer(context.settings)) {
+      // JIRA Server instances still use the old API for search.
+      const legacyResponse = await client.request<LegacySearchResults>({
+        endpoint: 'rest/api/latest/search',
+        query: { jql }
+      });
+
+      return {
+        count: legacyResponse.body.total,
+        data: legacyResponse.body,
+      };
+    }
+
     const response = await client.request<SearchResponse>({
       endpoint: 'rest/api/3/search/jql',
       query: {
