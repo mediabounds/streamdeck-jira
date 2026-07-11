@@ -40,10 +40,28 @@ export default abstract class BaseJiraCloudPlatformAction<ResponseType extends C
     super.handleDidReceiveSettings(event);
   }
 
+  /**
+   * Determines whether this action requires a Jira Cloud tenant cloud ID.
+   *
+   * Scoped API tokens rely on the tenant-specific Atlassian API base path, so
+   * they need the cloud ID resolved before requests can be made.
+   *
+   * @param settings - The current plugin settings.
+   * @returns `true` when the configured authentication strategy requires a cloud ID.
+   */
   protected requiresCloudId(settings: JiraCloudTenantSettings): boolean {
     return settings.strategy === 'ScopedAPIToken';
   }
 
+  /**
+   * Resolves the Jira Cloud tenant cloud ID for the configured domain.
+   *
+   * This uses Atlassian's tenant-info endpoint so the action can construct the
+   * proper cloud-scoped API URL.
+   *
+   * @param settings - The current plugin settings.
+   * @returns The tenant cloud ID.
+   */
   protected async lookupCloudId(settings: JiraCloudTenantSettings): Promise<string> {
     const {domain} = settings;
     if (!domain) {
@@ -59,6 +77,15 @@ export default abstract class BaseJiraCloudPlatformAction<ResponseType extends C
     return response.body.cloudId;
   }
 
+  /**
+   * Retrieves the Atlassian API base path for the given Jira Cloud tenant.
+   *
+   * Subclasses can override this to provide the correct platform-specific path,
+   * such as Jira or Confluence.
+   *
+   * @param cloudId - The Jira Cloud tenant cloud ID.
+   * @returns The API path suffix for the tenant.
+   */
   protected getBasePath(cloudId: string): string | null {
     return `ex/jira/${cloudId}`;
   }
