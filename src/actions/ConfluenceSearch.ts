@@ -70,8 +70,8 @@ class ConfluenceSearch extends BaseConfluenceAction<CountableResponse<CQLRespons
   handleKeyDown(event: KeyDownEvent<ConfluenceSearchSettings>): void {
     super.handleKeyDown(event);
 
-    if (this.getPollingClient()?.getLastResponse().count === 1) {
-      const content = this.getPollingClient().getLastResponse().data?.results[0]?.content;
+    if (this.getPollingClient()?.getLastResponse()?.count === 1) {
+      const content = this.getPollingClient()?.getLastResponse()?.data?.results[0]?.content;
       if (content && content.url) {
         this.openURL(content.url);
         return;

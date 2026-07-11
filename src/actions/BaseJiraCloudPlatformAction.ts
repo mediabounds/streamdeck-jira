@@ -20,47 +20,68 @@ export default abstract class BaseJiraCloudPlatformAction<ResponseType extends C
    * {@inheritDoc}
    */
   handleDidReceiveSettings(event: DidReceiveSettingsEvent<SettingsType>) {
-    let client: Client;
-    try {
-      client = JiraConnection.getClient(event.settings);
-    }
-    catch {
+    if (!event.settings.cloudId && this.requiresCloudId(event.settings)) {
+      this.debug(`Looking up tenant cloud ID for ${event.settings.domain}...`);
+      this.lookupCloudId(event.settings)
+        .then(cloudId => {
+          const settings = event.settings;
+          settings.cloudId = cloudId;
+          this.setSettings(settings);
+        })
+        .catch(error => {
+          this.debug(`Failed to lookup tenant cloud ID for ${event.settings.domain}: ${(error as Error).message}`);
+          const settings = event.settings;
+          settings.cloudId = 'unknown';
+          this.setSettings(settings);
+        });
       return;
     }
 
-    if (!event.settings.cloudId) {
-      this.debug(`Looking up tenant cloud ID for ${event.settings.domain}...`);
-      client.request<TenantInfo>({
-        endpoint: '_edge/tenant_info',
-      })
-      .then(response => {
-        const settings = event.settings;
-        settings.cloudId = response.body.cloudId;
-        this.setSettings(settings);
-      })
-      .catch(error => {
-        const settings = event.settings;
-        settings.cloudId = 'unknown';
-        this.setSettings(settings);
-      });
+    super.handleDidReceiveSettings(event);
+  }
+
+  protected requiresCloudId(settings: JiraCloudTenantSettings): boolean {
+    return settings.strategy === 'ScopedAPIToken';
+  }
+
+  protected async lookupCloudId(settings: JiraCloudTenantSettings): Promise<string> {
+    const {domain} = settings;
+    if (!domain) {
+      throw new Error('Domain is required to lookup cloud ID');
     }
-    else {
-      super.handleDidReceiveSettings(event);
-    }
+
+    const client = new Client(`https://${domain}`, undefined);
+
+    const response = await client.request<TenantInfo>({
+      endpoint: '_edge/tenant_info',
+    });
+
+    return response.body.cloudId;
+  }
+
+  protected getBasePath(cloudId: string): string | null {
+    return `ex/jira/${cloudId}`;
   }
 
   /**
    * {@inheritDoc}
    */
   protected getJiraClient(settings: JiraCloudTenantSettings): Client {
-    const authenticator = super.getJiraClient(settings).authenticator;
-    const cloudId = settings.cloudId || 'unknown';
-
-    if (cloudId === 'unknown') {
-      throw new Error('Unable to determine cloud ID for Jira Cloud tenant');
+    const { cloudId } = settings;
+    if (!cloudId || cloudId === 'unknown') {
+      if (!this.requiresCloudId(settings)) {
+        return super.getJiraClient(settings);
+      }
+      else {
+        throw new Error('Cloud ID is required');
+      }
     }
 
-    return new Client(`https://api.atlassian.com/jsm/ops/api/${cloudId}`, authenticator);
+    const endpoint = `https://api.atlassian.com/${this.getBasePath(cloudId)}`;
+
+    const authenticator = JiraConnection.getAuthenticator(settings);
+
+    return new Client(endpoint, authenticator);
   }
 
 }

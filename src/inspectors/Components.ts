@@ -75,11 +75,11 @@ export abstract class PropertyInspectorComponent<T> extends HTMLElement {
  * Subform for providing authentication credentials for Jira.
  */
 export class AuthenticationComponent extends PropertyInspectorComponent<DefaultPluginSettings> {
-  private domain: HTMLInputElement;
-  private email: HTMLInputElement;
-  private token: HTMLInputElement;
-  private tokenType: HTMLSelectElement;
-  private contextPath: HTMLInputElement;
+  private domain!: HTMLInputElement;
+  private email!: HTMLInputElement;
+  private token!: HTMLInputElement;
+  private tokenType!: HTMLSelectElement;
+  private contextPath!: HTMLInputElement;
 
   /**
    * {@inheritDoc}
@@ -111,7 +111,7 @@ export class AuthenticationComponent extends PropertyInspectorComponent<DefaultP
         .trim(),
       email: this.email.value.trim(),
       token: this.token.value.trim(),
-      strategy: <'APIToken'|'PAT'>this.tokenType.value,
+      strategy: <'ScopedAPIToken'|'APIToken'|'PAT'>this.tokenType.value,
     };
   }
 
@@ -132,11 +132,11 @@ export class AuthenticationComponent extends PropertyInspectorComponent<DefaultP
    */
   protected onTemplateLoaded(): void {
     super.onTemplateLoaded();
-    this.domain = this.querySelector('#domain');
-    this.email = this.querySelector('#email');
-    this.token = this.querySelector('#token');
-    this.tokenType = this.querySelector('#token-type');
-    this.contextPath = this.querySelector('#context-path');
+    this.domain = this.querySelector('#domain')!;
+    this.email = this.querySelector('#email')!;
+    this.token = this.querySelector('#token')!;
+    this.tokenType = this.querySelector('#token-type')!;
+    this.contextPath = this.querySelector('#context-path')!;
   }
 
   /**
@@ -160,13 +160,13 @@ export class AuthenticationComponent extends PropertyInspectorComponent<DefaultP
  * Subform for customizing the action icon.
  */
 export class IconComponent extends PropertyInspectorComponent<IconSettings> {
-  private customImagePreview: HTMLImageElement;
-  private customImageInput: HTMLInputElement;
-  private badgeType: HTMLSelectElement;
-  private badgePosition: HTMLSelectElement;
-  private badgeColor: HTMLInputElement;
+  private customImagePreview!: HTMLImageElement;
+  private customImageInput!: HTMLInputElement;
+  private badgeType!: HTMLSelectElement;
+  private badgePosition!: HTMLSelectElement;
+  private badgeColor!: HTMLInputElement;
   private customImageData?: string;
-  private desaturateCheckbox: HTMLInputElement;
+  private desaturateCheckbox!: HTMLInputElement;
 
   /**
    * {@inheritDoc}
@@ -206,12 +206,12 @@ export class IconComponent extends PropertyInspectorComponent<IconSettings> {
   protected onTemplateLoaded(): void {
     super.onTemplateLoaded();
 
-    this.customImagePreview = this.querySelector('#custom-image');
-    this.customImageInput = this.querySelector('#custom-image-input');
-    this.badgeType = this.querySelector('#badge-type');
-    this.badgePosition = this.querySelector('#badge-position');
-    this.badgeColor = this.querySelector('#badge-color');
-    this.desaturateCheckbox = this.querySelector('#desaturate-enabled');
+    this.customImagePreview = this.querySelector('#custom-image')!;
+    this.customImageInput = this.querySelector('#custom-image-input')!;
+    this.badgeType = this.querySelector('#badge-type')!;
+    this.badgePosition = this.querySelector('#badge-position')!;
+    this.badgeColor = this.querySelector('#badge-color')!;
+    this.desaturateCheckbox = this.querySelector('#desaturate-enabled')!;
 
     this.customImagePreview.addEventListener('click', () => this.removeCustomImage());
   }
@@ -254,7 +254,7 @@ export class IconComponent extends PropertyInspectorComponent<IconSettings> {
   private uploadCustomImage(): void {
     const files = this.customImageInput.files;
 
-    if (!files.length) {
+    if (!files?.length) {
       return;
     }
 
@@ -272,7 +272,7 @@ export class IconComponent extends PropertyInspectorComponent<IconSettings> {
    * Removes the custom image.
    */
   private removeCustomImage(): void {
-    this.setCustomImage(null);
+    this.setCustomImage();
   }
 
   /**
@@ -304,7 +304,7 @@ export class StatusComponent extends PropertyInspectorComponent<ActionPollingDeb
    * {@inheritDoc}
    */
   get value(): ActionPollingDebugInfo {
-    return this.currentStatus;
+    return this.currentStatus || { success: false, statusMessage: 'No status available' };
   }
 
   /**
@@ -335,7 +335,7 @@ export class StatusComponent extends PropertyInspectorComponent<ActionPollingDeb
    */
   protected onTemplateLoaded(): void {
     super.onTemplateLoaded();
-    this.status = this.querySelector('#status-display');
+    this.status = this.querySelector('#status-display')!;
   }
 }
 

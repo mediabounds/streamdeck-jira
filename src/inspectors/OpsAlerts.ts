@@ -82,7 +82,7 @@ class OpsAlertsActionPropertyInspector extends PollingActionInspector<OpsAlertsS
       context: '',
       email: this.globalSettings.email ?? '',
       token: this.globalSettings.token ?? '',
-      strategy: 'APIToken',
+      strategy: 'ScopedAPIToken',
       query: 'status: open',
       keyAction: 'View',
       pollingDelay: 60,
