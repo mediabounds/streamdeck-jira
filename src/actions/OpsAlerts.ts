@@ -1,5 +1,5 @@
 import { KeyDownEvent } from "@fnando/streamdeck";
-import { OpsAlertsDateFilter, OpsAlertsSettings } from "../JiraPluginSettings";
+import { JiraCloudTenantSettings, OpsAlertsDateFilter, OpsAlertsSettings } from "../JiraPluginSettings";
 import { CountableResponse } from "./BaseJiraAction";
 import { ActionPollingContext } from "./PollingAction";
 import BaseJiraCloudPlatformAction from "./BaseJiraCloudPlatformAction";
@@ -45,7 +45,7 @@ class OpsAlerts extends BaseJiraCloudPlatformAction<CountableResponse<ListAlertR
     super.handleKeyDown(event);
 
     if (event.settings.keyAction === "Acknowledge") {
-      this.getPollingClient().getLastResponse()?.data?.values?.forEach(alert => {
+      this.getPollingClient()?.getLastResponse()?.data?.values?.forEach(alert => {
         this.acknowledgeAlert(alert, event.settings)
           .catch(_ => {
             this.showAlert();
@@ -54,8 +54,9 @@ class OpsAlerts extends BaseJiraCloudPlatformAction<CountableResponse<ListAlertR
     }
 
     let url: string;
-    if (this.getPollingClient().getLastResponse()?.count === 1) {
-      const alert = this.getPollingClient().getLastResponse().data.values[0];
+    const response = this.getPollingClient()?.getLastResponse();
+    if (response && response.count === 1) {
+      const alert = response.data.values[0];
       url = this.getAlertUrl(alert, event.settings);
     }
     else {
@@ -66,7 +67,21 @@ class OpsAlerts extends BaseJiraCloudPlatformAction<CountableResponse<ListAlertR
       this.openURL(url);
     }
 
-    setTimeout(() => this.getPollingClient().poll(), 3000);
+    setTimeout(() => this.getPollingClient()?.poll(), 3000);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  protected getBasePath(cloudId: string): string | null {
+    return `jsm/ops/api/${cloudId}`;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  protected requiresCloudId(settings: JiraCloudTenantSettings): boolean {
+    return true;
   }
 
   /**
@@ -137,7 +152,7 @@ class OpsAlerts extends BaseJiraCloudPlatformAction<CountableResponse<ListAlertR
    * @param filter - The current filter value.
    * @returns The timestamp (in milliseconds) for the date filter.
    */
-  protected getTimestamp(filter: OpsAlertsDateFilter): number|null {
+  protected getTimestamp(filter?: OpsAlertsDateFilter): number|null {
     if (!filter || filter === 'All') {
       return null;
     }

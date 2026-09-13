@@ -12,7 +12,7 @@ export interface RequestOptions {
   headers?: Headers;
   redirect?: RequestRedirect;
   referrerPolicy?: ReferrerPolicy;
-  body?: unknown;
+  body?: BodyInit;
 }
 
 /**
@@ -102,7 +102,7 @@ export default class Client {
   /**
    * The authenticator for this client.
    */
-  public get authenticator(): Authenticator {
+  public get authenticator(): Authenticator | undefined {
     return this._authenticator;
   }
 

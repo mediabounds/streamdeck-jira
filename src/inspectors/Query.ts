@@ -82,7 +82,7 @@ class QueryActionPropertyInspector extends PollingActionInspector<JQLQuerySettin
       context: this.globalSettings.context ?? '',
       email: this.globalSettings.email ?? '',
       token: this.globalSettings.token ?? '',
-      strategy: this.globalSettings.strategy ?? 'APIToken',
+      strategy: this.globalSettings.strategy ?? 'ScopedAPIToken',
       jql: '',
       keyAction: {
         limit: 5,

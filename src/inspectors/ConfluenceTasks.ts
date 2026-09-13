@@ -69,7 +69,7 @@ class ConfluenceTasksActionPropertyInspector extends PollingActionInspector<Conf
       context: this.globalSettings.context ?? 'wiki',
       email: this.globalSettings.email ?? '',
       token: this.globalSettings.token ?? '',
-      strategy: this.globalSettings.strategy ?? 'APIToken',
+      strategy: this.globalSettings.strategy ?? 'ScopedAPIToken',
       pollingDelay: 120,
       badgeType: BadgeType.Number,
       badgePosition: BadgePosition.TopRight,

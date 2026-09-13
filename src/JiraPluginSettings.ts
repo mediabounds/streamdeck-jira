@@ -25,7 +25,7 @@ export type JQLQueryKeyAction = 'Refresh' | 'ViewFilter' | ViewInBrowserAction |
 /**
  * Settings used by the JQL Query action.
  */
-export interface JQLQuerySettings extends CommonSettings {
+export interface JQLQuerySettings extends JiraCloudTenantSettings {
   /**
    * The JQL to use to query for issues from Jira.
    */
@@ -97,7 +97,7 @@ export interface OpsAlertsSettings extends JiraCloudTenantSettings {
 /**
  * Settings used by the Confluence Search action.
  */
-export interface ConfluenceSearchSettings extends CommonSettings {
+export interface ConfluenceSearchSettings extends JiraCloudTenantSettings {
   /**
    * The CQL to use to query for content from Confluence.
    * @see https://developer.atlassian.com/cloud/confluence/advanced-searching-using-cql/
@@ -108,7 +108,7 @@ export interface ConfluenceSearchSettings extends CommonSettings {
 /**
  * Settings used by the Confluence inline tasks action.
  */
-export interface ConfluenceTasksSettings extends CommonSettings {
+export interface ConfluenceTasksSettings extends JiraCloudTenantSettings {
   /**
    * Only return inline tasks due on or after this date (formatted as yyyy-mm-dd).
    */
@@ -244,10 +244,14 @@ export interface DefaultPluginSettings {
    * The authentication strategy to use.
    * 
    * API tokens are for JIRA cloud.
+   * These are being sunset, though there's no specific date for when they will be removed.
+   * @see https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/
+   * 
+   * Scoped API tokens are the recommended approach for JIRA cloud.
    * @see https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/
    * 
    * Personal access tokens (PAT) are for JIRA server.
    * @see https://confluence.atlassian.com/enterprise/using-personal-access-tokens-1026032365.html
    */
-  strategy: 'APIToken' | 'PAT'
+  strategy: 'ScopedAPIToken' | 'APIToken' | 'PAT'
 }

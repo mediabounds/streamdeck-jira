@@ -76,8 +76,8 @@ export default abstract class PollingAction<ResponseType, SettingsType = unknown
     }
 
     context.settings = event.settings;
-    this.getPollingClient().setContext(context);
-    this.getPollingClient().poll();
+    this.getPollingClient()?.setContext(context);
+    this.getPollingClient()?.poll();
   }
 
   /**
@@ -111,8 +111,8 @@ export default abstract class PollingAction<ResponseType, SettingsType = unknown
     const info: ActionPollingDebugInfo = {
       success: false,
       statusMessage: event.error.message,
-      responseHeaders: event.error instanceof RequestError ? event.error.response.getAllHeaders() : null,
-      responseBody: event.error instanceof RequestError ? event.error.response.getBodyContents() : null,
+      responseHeaders: event.error instanceof RequestError ? event.error.response.getAllHeaders() : undefined,
+      responseBody: event.error instanceof RequestError ? event.error.response.getBodyContents() : undefined,
     };
 
     this.sendToPropertyInspector(info);

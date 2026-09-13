@@ -12,7 +12,7 @@ export class JiraConnection {
    * @returns A configured Client.
    */
   public static getClient(settings: DefaultPluginSettings): Client {
-    const {domain, context, email: username, token: key, strategy} = settings;
+    const {domain, context} = settings;
 
     if (!domain) {
       throw new Error('A domain must be set');
@@ -23,17 +23,22 @@ export class JiraConnection {
       endpoint = `${endpoint}/${context}`;
     }
 
+    const authenticator = this.getAuthenticator(settings);
+
+    return new Client(endpoint, authenticator);
+  }
+
+  public static getAuthenticator(settings: DefaultPluginSettings): Authenticator {
+    const { email: username, token: key, strategy } = settings;
+
     if (!key) {
       throw new Error('An API token must be set');
     }
 
-    let authenticator: Authenticator;
     if (strategy === 'PAT') {
-      authenticator = new TokenAuth(key);
+      return new TokenAuth(key);
     } else {
-      authenticator = new BasicAuth(username, key);
+      return new BasicAuth(username, key);
     }
-
-    return new Client(endpoint, authenticator);
   }
 }

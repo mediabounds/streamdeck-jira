@@ -1,7 +1,8 @@
 import { KeyDownEvent } from "@fnando/streamdeck";
 import { JQLQuerySettings } from "../JiraPluginSettings";
-import BaseJiraAction, { CountableResponse } from "./BaseJiraAction";
+import { CountableResponse } from "./BaseJiraAction";
 import { ActionPollingContext } from "./PollingAction";
+import BaseJiraCloudPlatformAction from "./BaseJiraCloudPlatformAction";
 
 /**
  * The expected response structure from Jira when executing JQL using the modern API.
@@ -28,8 +29,10 @@ interface Issue {
 
 /**
  * Periodically polls Jira to get an updated list of issues matching the configured JQL.
+ * 
+ * https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issue-search/#api-rest-api-3-search-jql-post
  */
-class Query extends BaseJiraAction<CountableResponse<SearchResponse>, JQLQuerySettings> {
+class Query extends BaseJiraCloudPlatformAction<CountableResponse<SearchResponse>, JQLQuerySettings> {
   /**
    * {@inheritDoc}
    */
